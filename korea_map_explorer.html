@@ -1,0 +1,2725 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🗺️ 쏙쏙 대한민국! 초등 한국 지도 탐험대</title>
+  <meta name="description" content="초등학교 3~4학년 학생들을 위한 쉽고 재미있는 인터랙티브 대한민국 지도 탐험 및 위치 맞추기 퀴즈 앱">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       1. 디자인 시스템 & 전역 스타일
+       ========================================================================== */
+    :root {
+      --font-display: 'Jua', 'Noto Sans KR', 'Malgun Gothic', '맑은 고딕', sans-serif;
+      --font-body: 'Noto Sans KR', 'Malgun Gothic', '맑은 고딕', sans-serif;
+      
+      --color-primary: #4A90E2;
+      --color-primary-dark: #2F6CB3;
+      --color-primary-light: #E8F2FF;
+      --color-secondary: #FFB703;
+      --color-secondary-dark: #FB8500;
+      --color-success: #06D6A0;
+      --color-danger: #EF476F;
+      --color-purple: #8338EC;
+      
+      --bg-page: linear-gradient(135deg, #eaf4fd 0%, #f6faff 50%, #eff6ff 100%);
+      --bg-card: #FFFFFF;
+      --bg-sea: #e1f3fc;
+      
+      --text-main: #2D3748;
+      --text-muted: #718096;
+      --text-white: #FFFFFF;
+      
+      --radius-sm: 12px;
+      --radius-md: 20px;
+      --radius-lg: 30px;
+      --radius-full: 9999px;
+      
+      --shadow-soft: 0 10px 25px -5px rgba(74, 144, 226, 0.12), 0 8px 10px -6px rgba(74, 144, 226, 0.08);
+      --shadow-card: 0 14px 34px rgba(60, 110, 180, 0.15), 0 4px 12px rgba(60, 110, 180, 0.08);
+      --shadow-hover: 0 20px 35px rgba(74, 144, 226, 0.25);
+      --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 상단 네비게이션 바 */
+    .app-header {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 3px solid #e1effe;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(74, 144, 226, 0.06);
+    }
+
+    .header-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      font-size: 2rem;
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
+      animation: floatIcon 3s ease-in-out infinite;
+    }
+
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      color: var(--color-primary-dark);
+      letter-spacing: -0.5px;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+
+    .brand-subtitle {
+      font-size: 0.78rem;
+      font-family: var(--font-body);
+      font-weight: 700;
+      color: var(--color-secondary-dark);
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-icon {
+      background: var(--bg-card);
+      border: 2px solid #dae7f8;
+      border-radius: var(--radius-full);
+      width: 44px;
+      height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: var(--text-main);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-icon:hover {
+      transform: translateY(-2px) scale(1.05);
+      border-color: var(--color-primary);
+      box-shadow: 0 6px 14px rgba(74, 144, 226, 0.2);
+    }
+
+    .btn-icon:active {
+      transform: translateY(1px) scale(0.96);
+    }
+
+    .btn-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #edf5ff;
+      color: var(--color-primary-dark);
+      border: 2px solid #bee3f8;
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-home:hover {
+      background: var(--color-primary);
+      color: var(--text-white);
+      border-color: var(--color-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(74, 144, 226, 0.25);
+    }
+
+    /* 메인 콘텐츠 영역 */
+    .main-wrapper {
+      flex: 1;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 화면 전환 컨테이너 */
+    .screen {
+      display: none;
+      animation: fadeIn 0.35s ease-out forwards;
+      width: 100%;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       [화면 1] 메인 대기실 (Lobby)
+       ========================================================================== */
+    .lobby-hero {
+      text-align: center;
+      padding: 30px 15px 40px;
+      background: radial-gradient(circle at 50% 20%, #ffffff 0%, rgba(255,255,255,0.7) 100%);
+      border-radius: var(--radius-lg);
+      border: 3px solid #e2effe;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lobby-badge {
+      display: inline-block;
+      background: #FFF3CD;
+      color: #997404;
+      font-family: var(--font-display);
+      padding: 6px 18px;
+      border-radius: var(--radius-full);
+      font-size: 1.05rem;
+      margin-bottom: 16px;
+      border: 2px dashed #FFEBAA;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.04);
+    }
+
+    .lobby-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      color: #1a365d;
+      margin-bottom: 12px;
+      line-height: 1.25;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .lobby-title .highlight {
+      color: var(--color-primary);
+      position: relative;
+      display: inline-block;
+    }
+
+    .lobby-desc {
+      font-size: 1.2rem;
+      color: #4a5568;
+      max-width: 650px;
+      margin: 0 auto 35px;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .mode-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .mode-card {
+      background: var(--bg-card);
+      border: 3px solid #e2effe;
+      border-radius: var(--radius-md);
+      padding: 35px 25px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mode-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 8px;
+    }
+
+    .mode-card.explore::before {
+      background: linear-gradient(90deg, #4A90E2, #00CEC9);
+    }
+
+    .mode-card.quiz::before {
+      background: linear-gradient(90deg, #FFB703, #FB8500);
+    }
+
+    .mode-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--color-primary);
+    }
+
+    .mode-card:active {
+      transform: translateY(-2px);
+    }
+
+    .mode-icon {
+      font-size: 4rem;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.1));
+      transition: transform 0.3s ease;
+    }
+
+    .mode-card:hover .mode-icon {
+      transform: scale(1.15) rotate(5deg);
+    }
+
+    .mode-name {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      color: #2D3748;
+    }
+
+    .mode-text {
+      font-size: 1.05rem;
+      color: #718096;
+      line-height: 1.5;
+      margin-bottom: 25px;
+      flex: 1;
+    }
+
+    .btn-mode-start {
+      width: 100%;
+      padding: 14px 24px;
+      border: none;
+      border-radius: var(--radius-full);
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: var(--text-white);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+      transition: all 0.2s ease;
+    }
+
+    .explore .btn-mode-start {
+      background: linear-gradient(135deg, #4A90E2 0%, #2F6CB3 100%);
+    }
+
+    .quiz .btn-mode-start {
+      background: linear-gradient(135deg, #FFB703 0%, #FB8500 100%);
+    }
+
+    .btn-mode-start:hover {
+      filter: brightness(1.08);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+    }
+
+    .lobby-footer-tips {
+      background: #FFFFFF;
+      border-radius: var(--radius-md);
+      padding: 20px;
+      border: 2px solid #EBF4FF;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      max-width: 900px;
+      margin: 30px auto 0;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .tips-icon {
+      font-size: 2.2rem;
+      color: var(--color-secondary-dark);
+    }
+
+    .tips-content h4 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: #2D3748;
+      margin-bottom: 4px;
+    }
+
+    .tips-content p {
+      font-size: 0.95rem;
+      color: #718096;
+      line-height: 1.45;
+    }
+
+    /* ==========================================================================
+       공통 지도 레이아웃 (탐색 & 퀴즈 화면 공통)
+       ========================================================================== */
+    .map-dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 992px) {
+      .map-dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 지도 컨테이너 */
+    .map-container-card {
+      background: #FFFFFF;
+      border-radius: var(--radius-md);
+      border: 3px solid #dae7f8;
+      box-shadow: var(--shadow-card);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-header-status {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 2px dashed #edf2f7;
+      margin-bottom: 12px;
+    }
+
+    .map-title-badge {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--color-primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .map-zoom-hint {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      background: #F7FAFC;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid #E2E8F0;
+    }
+
+    .svg-viewport {
+      width: 100%;
+      max-height: 680px;
+      background: var(--bg-sea);
+      border-radius: var(--radius-sm);
+      border: 2px solid #bce2f5;
+      box-shadow: var(--shadow-inner);
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    #korea-svg {
+      width: 100%;
+      height: 100%;
+      max-height: 680px;
+      display: block;
+    }
+
+    /* SVG 스타일링 */
+    .province-path {
+      cursor: pointer;
+      stroke: #FFFFFF;
+      stroke-width: 1.8;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+      transition: fill 0.25s ease, stroke 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+      filter: drop-shadow(0 2px 4px rgba(0, 50, 100, 0.08));
+    }
+
+    .province-path:hover {
+      filter: brightness(1.12) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
+      stroke: #2F6CB3;
+      stroke-width: 3.2;
+    }
+
+    .province-path.selected {
+      stroke: #FF385C;
+      stroke-width: 4;
+      filter: drop-shadow(0 0 10px rgba(255, 56, 92, 0.6));
+    }
+
+    .province-path.correct-anim {
+      animation: pulseGreen 1.2s ease infinite alternate;
+      stroke: #06D6A0 !important;
+      stroke-width: 4.5 !important;
+      fill: #2ecc71 !important;
+    }
+
+    .province-path.wrong-anim {
+      animation: shakeWrong 0.5s ease;
+      stroke: #EF476F !important;
+      fill: #ff7675 !important;
+    }
+
+    @keyframes pulseGreen {
+      0% { filter: drop-shadow(0 0 4px #06D6A0); }
+      100% { filter: drop-shadow(0 0 16px #06D6A0); }
+    }
+
+    @keyframes shakeWrong {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    /* 라벨 칩 (뱃지) 스타일 */
+    .region-badge-group {
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .region-badge-group:hover {
+      transform: scale(1.2);
+    }
+
+    .badge-bg {
+      fill: #FFFFFF;
+      stroke: #2F6CB3;
+      stroke-width: 2.2;
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.18));
+      rx: 10;
+      ry: 10;
+    }
+
+    .badge-text {
+      font-family: var(--font-display);
+      font-size: 13.5px;
+      font-weight: 700;
+      fill: #1A365D;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    .badge-pin-circle {
+      fill: var(--color-primary);
+      stroke: #FFFFFF;
+      stroke-width: 2;
+    }
+
+    /* 지도 툴팁 */
+    #map-tooltip {
+      position: absolute;
+      display: none;
+      background: rgba(26, 54, 93, 0.94);
+      color: #FFFFFF;
+      padding: 7px 14px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      pointer-events: none;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      transform: translate(-50%, -120%);
+      white-space: nowrap;
+      transition: opacity 0.15s ease;
+    }
+
+    /* ==========================================================================
+       [모드 1] 자유 탐색 모드 사이드 패널
+       ========================================================================== */
+    .info-card-panel {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      border: 3px solid #dae7f8;
+      box-shadow: var(--shadow-card);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .explore-tracker {
+      background: #F0F7FF;
+      border: 2px solid #BAE3FF;
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tracker-label {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: #0050B3;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tracker-count {
+      background: #0050B3;
+      color: #FFFFFF;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .region-profile-empty {
+      text-align: center;
+      padding: 50px 20px;
+      color: #718096;
+    }
+
+    .profile-empty-icon {
+      font-size: 4rem;
+      margin-bottom: 12px;
+      color: var(--color-primary);
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-12px); }
+      60% { transform: translateY(-6px); }
+    }
+
+    .region-profile-active {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid #EDF2F7;
+    }
+
+    .profile-icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-sm);
+      background: #F0F7FF;
+      border: 2px solid #dae7f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+    }
+
+    .profile-name-wrap {
+      flex: 1;
+    }
+
+    .profile-type-badge {
+      display: inline-block;
+      background: #EBF8FF;
+      color: var(--color-primary-dark);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      margin-bottom: 4px;
+    }
+
+    .profile-name {
+      font-family: var(--font-display);
+      font-size: 1.85rem;
+      color: #1A365D;
+      line-height: 1.2;
+    }
+
+    .btn-tts {
+      background: #E8F5E9;
+      color: #2E7D32;
+      border: 2px solid #C8E6C9;
+      border-radius: var(--radius-full);
+      padding: 8px 16px;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      align-self: flex-start;
+      transition: all 0.2s ease;
+    }
+
+    .btn-tts:hover {
+      background: #2E7D32;
+      color: #FFFFFF;
+      transform: translateY(-2px);
+    }
+
+    .profile-tagline {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--color-primary-dark);
+      line-height: 1.4;
+      background: #F7FAFC;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border-left: 4px solid var(--color-primary);
+    }
+
+    .profile-desc {
+      font-size: 1.05rem;
+      color: #2D3748;
+      line-height: 1.7;
+    }
+
+    .profile-facts-card {
+      background: #FFFDF5;
+      border: 2px solid #FFEAA7;
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+
+    .facts-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: #B7791F;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .facts-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .facts-list li {
+      font-size: 0.95rem;
+      color: #4A5568;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      line-height: 1.45;
+    }
+
+    .facts-list li::before {
+      content: '✔';
+      color: #38A169;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .profile-tags-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag-chip {
+      background: #EDF2F7;
+      color: #4A5568;
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       [모드 2] 위치 맞추기 퀴즈 모드 대시보드
+       ========================================================================== */
+    .quiz-control-panel {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      border: 3px solid #dae7f8;
+      box-shadow: var(--shadow-card);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .quiz-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #EDF2F7;
+    }
+
+    .quiz-step-badge {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--color-primary-dark);
+      background: #EBF8FF;
+      padding: 5px 14px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid #BEE3F8;
+    }
+
+    .quiz-hearts-box {
+      display: flex;
+      gap: 4px;
+      font-size: 1.5rem;
+    }
+
+    .quiz-stars-counter {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      color: #B7791F;
+      background: #FEFCBF;
+      padding: 5px 14px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid #F6E05E;
+    }
+
+    /* 진행 바 */
+    .progress-bar-wrap {
+      width: 100%;
+      height: 12px;
+      background: #E2E8F0;
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4A90E2, #00CEC9);
+      width: 10%;
+      border-radius: var(--radius-full);
+      transition: width 0.4s ease;
+    }
+
+    /* 퀴즈 문제 박스 */
+    .quiz-question-card {
+      background: linear-gradient(135deg, #FFF9DB 0%, #FFF3BF 100%);
+      border: 3px solid #FFE066;
+      border-radius: var(--radius-md);
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 6px 16px rgba(245, 159, 0, 0.12);
+      position: relative;
+    }
+
+    .question-prompt {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #92400E;
+      margin-bottom: 8px;
+    }
+
+    .question-target-name {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 3.5vw, 2.7rem);
+      color: #B45309;
+      line-height: 1.2;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    .question-clue {
+      font-size: 1rem;
+      color: #78350F;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      display: inline-block;
+      margin-top: 6px;
+    }
+
+    /* 피드백 & 힌트 메시지 박스 */
+    .quiz-feedback-box {
+      min-height: 90px;
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: all 0.3s ease;
+      background: #F7FAFC;
+      border: 2px dashed #CBD5E0;
+    }
+
+    .quiz-feedback-box.correct {
+      background: #E6FFFA;
+      border: 2px solid #38B2AC;
+      color: #234E52;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .quiz-feedback-box.wrong {
+      background: #FFF5F5;
+      border: 2px solid #FC8181;
+      color: #742A2A;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .feedback-text {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      line-height: 1.45;
+    }
+
+    .feedback-hint-direction {
+      font-size: 1.05rem;
+      color: #C53030;
+      font-weight: 700;
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* 나침반 힌트 시각화 */
+    .compass-hint-widget {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #FFFFFF;
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      border: 2px solid #E2E8F0;
+    }
+
+    .compass-rose {
+      font-size: 2.2rem;
+      animation: rotateCompass 3s ease-in-out infinite;
+    }
+
+    @keyframes rotateCompass {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-10deg); }
+      75% { transform: rotate(10deg); }
+    }
+
+    .compass-text {
+      font-size: 0.95rem;
+      color: #4A5568;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       [화면 3] 퀴즈 결과 화면 (Result Screen)
+       ========================================================================== */
+    .result-container {
+      max-width: 720px;
+      margin: 20px auto;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 4px solid #dae7f8;
+      box-shadow: var(--shadow-card);
+      padding: 45px 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-ribbon {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 12px;
+      background: linear-gradient(90deg, #FFB703, #FB8500, #4A90E2, #06D6A0);
+    }
+
+    .result-trophy-icon {
+      font-size: 5rem;
+      margin-bottom: 12px;
+      display: inline-block;
+      animation: tada 1s ease;
+    }
+
+    @keyframes tada {
+      0% { transform: scale(1); }
+      10%, 20% { transform: scale(0.9) rotate(-3deg); }
+      30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
+      40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
+      100% { transform: scale(1) rotate(0); }
+    }
+
+    .result-title {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      color: #1A365D;
+      margin-bottom: 10px;
+    }
+
+    .result-score-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #FEFCBF;
+      border: 3px solid #F6E05E;
+      border-radius: var(--radius-full);
+      padding: 8px 26px;
+      margin-bottom: 24px;
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: #975A16;
+    }
+
+    .result-title-card {
+      background: #F7FAFC;
+      border-radius: var(--radius-md);
+      border: 2px solid #E2E8F0;
+      padding: 22px;
+      margin-bottom: 30px;
+    }
+
+    .badge-rank-title {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: var(--color-primary-dark);
+      margin-bottom: 8px;
+    }
+
+    .badge-rank-desc {
+      font-size: 1.15rem;
+      color: #4A5568;
+      line-height: 1.5;
+    }
+
+    .result-actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .btn-result {
+      flex: 1;
+      min-width: 220px;
+      padding: 16px 28px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+      transition: all 0.2s ease;
+    }
+
+    .btn-result.retry {
+      background: linear-gradient(135deg, #FFB703 0%, #FB8500 100%);
+      color: #FFFFFF;
+    }
+
+    .btn-result.explore-btn {
+      background: linear-gradient(135deg, #4A90E2 0%, #2F6CB3 100%);
+      color: #FFFFFF;
+    }
+
+    .btn-result:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.18);
+    }
+
+    /* 캔버스 폭죽 이펙트 레이어 */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* 안내 모달 */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #FFFFFF;
+      border-radius: var(--radius-md);
+      max-width: 500px;
+      width: 100%;
+      padding: 28px;
+      box-shadow: var(--shadow-card);
+      border: 3px solid #dae7f8;
+      animation: popIn 0.3s ease;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: #1A365D;
+    }
+
+    .btn-close-modal {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #718096;
+      line-height: 1;
+    }
+
+    .modal-body {
+      font-size: 1rem;
+      color: #4A5568;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .modal-body ul {
+      margin-top: 10px;
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .btn-modal-ok {
+      width: 100%;
+      padding: 12px;
+      background: var(--color-primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-full);
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      cursor: pointer;
+    }
+
+    /* 작은 화면 미디어 쿼리 */
+    @media (max-width: 600px) {
+      .header-container {
+        padding: 10px 14px;
+      }
+      .brand-title {
+        font-size: 1.2rem;
+      }
+      .brand-subtitle {
+        display: none;
+      }
+      .main-wrapper {
+        padding: 12px;
+      }
+      .lobby-hero {
+        padding: 24px 12px;
+      }
+      .mode-card {
+        padding: 25px 18px;
+      }
+      .info-card-panel, .quiz-control-panel {
+        padding: 18px 14px;
+      }
+      .question-target-name {
+        font-size: 1.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 축하 컨페티 효과 캔버스 -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- 상단 네비게이션 헤더 -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-logo" onclick="switchScreen('screen-lobby')">
+        <span class="brand-icon">🗺️</span>
+        <div class="brand-title">
+          <span>쏙쏙 대한민국!</span>
+          <span class="brand-subtitle">초등 한국 지도 탐험대</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-sound-toggle" class="btn-icon" title="효과음 켜기/끄기" aria-label="효과음 토글">
+          🔊
+        </button>
+        <button id="btn-help" class="btn-icon" title="도움말 보기" aria-label="도움말">
+          ❓
+        </button>
+        <button id="btn-download-app" class="btn-home" style="background:#E6FFFA; color:#234E52; border-color:#81E6D9;" title="이 웹앱(index.html) 내 컴퓨터에 다운로드하기" onclick="downloadCurrentApp()">
+          📥 다운로드
+        </button>
+        <button id="btn-nav-home" class="btn-home" onclick="switchScreen('screen-lobby')">
+          🏠 홈으로
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 인터페이스 영역 -->
+  <main class="main-wrapper">
+
+    <!-- [화면 1] 메인 대기실 화면 (Lobby) -->
+    <section id="screen-lobby" class="screen active">
+      <div class="lobby-hero">
+        <span class="lobby-badge">🌱 초등 3~4학년 사회과 연계 지도 탐험</span>
+        <h1 class="lobby-title">지도를 탐색하며 <br><span class="highlight">우리나라의 위치</span>를 찾아봐요!</h1>
+        <p class="lobby-desc">
+          17개 특별시·광역시·도 행정구역을 직접 클릭하고,<br>
+          재미있는 지역 특징과 동서남북 위치 퀴즈를 즐겨보세요!
+        </p>
+
+        <div class="mode-cards-grid">
+          <!-- 모드 1: 자유 탐색 -->
+          <div class="mode-card explore" onclick="startExploreMode()">
+            <div class="mode-icon">🔍</div>
+            <h2 class="mode-name">자유 탐색 모드</h2>
+            <p class="mode-text">
+              대한민국 지도를 자유롭게 클릭해보고,<br>
+              지역 이름과 신기하고 알찬 특징을 살펴봐요.
+            </p>
+            <button class="btn-mode-start">탐험 시작하기 🚀</button>
+          </div>
+
+          <!-- 모드 2: 퀴즈 모드 -->
+          <div class="mode-card quiz" onclick="startQuizMode()">
+            <div class="mode-icon">🎯</div>
+            <h2 class="mode-name">위치 맞추기 퀴즈</h2>
+            <p class="mode-text">
+              제시된 지역을 지도에서 직접 찾아보세요!<br>
+              틀려도 친절한 동서남북 힌트가 도와줘요.
+            </p>
+            <button class="btn-mode-start">퀴즈 도전하기 ⭐</button>
+          </div>
+        </div>
+
+        <div class="lobby-footer-tips">
+          <div class="tips-icon">💡</div>
+          <div class="tips-content">
+            <h4>탐험대 꿀팁!</h4>
+            <p>서울, 인천, 대전, 대구, 광주, 울산, 부산, 세종처럼 작은 도시는 지도 위의 동글동글한 <strong>이름 뱃지</strong>를 콕 눌러도 쉽게 선택할 수 있어요!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- [화면 2] 공통 인터랙티브 지도 화면 (탐색 & 퀴즈 공용) -->
+    <section id="screen-map-view" class="screen">
+      <div class="map-dashboard-grid">
+        
+        <!-- 좌측: 대한민국 인터랙티브 SVG 지도 카드 -->
+        <div class="map-container-card">
+          <div class="map-header-status">
+            <div class="map-title-badge" id="map-mode-indicator">
+              <span>🗺️</span> <span>대한민국 전도</span>
+            </div>
+            <div class="map-zoom-hint">
+              👆 지역이나 이름 뱃지를 터치하세요!
+            </div>
+          </div>
+
+          <div class="svg-viewport" id="svg-viewport">
+            <div id="map-tooltip">지역명</div>
+            
+            <!-- 대한민국 17개 행정구역 SVG -->
+            <svg id="korea-svg" viewBox="190 70 720 900" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <filter id="badge-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-opacity="0.25"/>
+                </filter>
+              </defs>
+
+              <!-- 바다 배경 장식 (방위표 & 울릉도/독도 표기) -->
+              <g id="decorations" opacity="0.85">
+                <!-- 동해 표기 -->
+                <text x="750" y="240" font-family="'Jua', sans-serif" font-size="20" fill="#8db8d5" font-weight="700">동 해 (East Sea)</text>
+                <!-- 서해 표기 -->
+                <text x="240" y="440" font-family="'Jua', sans-serif" font-size="20" fill="#8db8d5" font-weight="700">서 해 (황해)</text>
+                <!-- 남해 표기 -->
+                <text x="460" y="800" font-family="'Jua', sans-serif" font-size="20" fill="#8db8d5" font-weight="700">남 해</text>
+                
+                <!-- 방위표 (초등 사회 필수 개념: 4방위) -->
+                <g transform="translate(240, 140)">
+                  <circle cx="0" cy="0" r="26" fill="#ffffff" stroke="#90cdf4" stroke-width="2" filter="url(#badge-shadow)"/>
+                  <path d="M0 -22 L5 -4 L0 0 L-5 -4 Z" fill="#EF476F"/>
+                  <path d="M0 22 L5 4 L0 0 L-5 4 Z" fill="#4A90E2"/>
+                  <path d="M-22 0 L-4 -5 L0 0 L-4 5 Z" fill="#A0AEC0"/>
+                  <path d="M22 0 L4 -5 L0 0 L4 5 Z" fill="#A0AEC0"/>
+                  <text x="0" y="-8" text-anchor="middle" font-family="'Jua', sans-serif" font-size="12" font-weight="700" fill="#EF476F">북(N)</text>
+                  <text x="0" y="16" text-anchor="middle" font-family="'Jua', sans-serif" font-size="10" font-weight="700" fill="#4A90E2">남</text>
+                  <text x="-12" y="4" text-anchor="middle" font-family="'Jua', sans-serif" font-size="10" font-weight="700" fill="#718096">서</text>
+                  <text x="12" y="4" text-anchor="middle" font-family="'Jua', sans-serif" font-size="10" font-weight="700" fill="#718096">동</text>
+                </g>
+
+                <!-- 독도 & 울릉도 랜드마크 뱃지 -->
+                <g class="region-badge-group" onclick="handleRegionClick('KR47')">
+                  <circle cx="810" cy="305" r="5" fill="#4A69BD" stroke="#fff" stroke-width="1.5"/>
+                  <rect x="785" y="278" width="50" height="20" rx="6" fill="#fff" stroke="#4A69BD" stroke-width="1.5" filter="url(#badge-shadow)"/>
+                  <text x="810" y="292" text-anchor="middle" font-family="'Jua', sans-serif" font-size="11" fill="#1A365D" font-weight="700">울릉도</text>
+                </g>
+                <g class="region-badge-group" onclick="handleRegionClick('KR47')">
+                  <circle cx="885" cy="345" r="4.5" fill="#EF476F" stroke="#fff" stroke-width="1.5"/>
+                  <rect x="855" y="318" width="60" height="20" rx="6" fill="#fff" stroke="#EF476F" stroke-width="1.5" filter="url(#badge-shadow)"/>
+                  <text x="885" y="332" text-anchor="middle" font-family="'Jua', sans-serif" font-size="11" fill="#C53030" font-weight="700">독도 🇰🇷</text>
+                </g>
+              </g>
+
+              <!-- 17개 행정구역 폴리곤 패스 그룹 -->
+              <g id="provinces-layer">
+                <!-- 1. 강원특별자치도 -->
+                <path id="KR42" class="province-path" data-name="강원특별자치도" data-badge="강원" fill="#7ed6df" d="M724.4 389.1l-1.3 0-4.5-1.1-4.4 2-9.4-3.5 1.5-4-0.4-3.8-1.2-4.2-0.4-4.7 1.9-4.5 1.4-4.3-1.1-1.2-1.1-1.1 0.5-3.9-9.9-0.7-2.9-1.7-3.1-1.3-1.3-3.1-1-3.6-4.5-2.2-2.8-4.2-0.6-5.5 1-4.2 2.3-1.7 2.6-1 3.9 1.6 3.2-2.4-1.3-3.9-4.2-2.6-4.7-1.1-3.6 2-3.6 0.9-5-2.3-5.3-0.9-1.8 0.7-1.5-0.2-1.1-1.5-1.7-0.7-3.8 3-4.1 1.6-0.3-3 0.3-2.9-2.3-1.2-2.6-0.6-1.9-3.4-3.7-0.3-3.7 1.8-2.5 3 0.9 4.2-0.4 3.9-0.8 3.6-3.5-0.3-4-0.9-3.4-1.4-3.5-1.9-2.7-1.7-2.7-1.2-3.5-0.4-3.5-0.7-3.6-2.3-3.2-2.5-3.2 0.1-3.3 1-2.9 0.5-2.5 0.2-1-2.2-2.7-2.8 0.3-2.5-1.4-1.4-6.4 0.7-4.1 1.4-1.3 0.6-1.2-0.1-1.9-1-1.5-1.7 2.3-3.6 3.9-2.8 1.6-3.6-2.4-0.7-7.8-1.2-7.5-2.7-3.2 2.4-2.6 1.4-3.3-0.7-2.7 2.1-4.5 2.5-4.5 1.1-1.7-2.4 0-3.6-5.1-5.5-6.9 2.4-2.6 3.1 0.8 8.3-2.8 1.9-0.9 1.1-1.1 0.9-1.1-0.6-1.2-0.7-4.1-0.3-4.1 1 1.1-8.2-14.4 2-14.3 3.9 7.3-13.6 6.1-14.8 8.3-17.9 1.1-3.8-0.8-3.9 1.8-3.1 2.5-3 2.7-1.1 1.4-3.1-1.6-2.6-2-1.7-3.2-0.4-3.3-1.3-4.6-0.6-7.6-4.2-3.4-1.4-3.4-2.2-3.8-0.6-3.6 1.1-3-2.5 0.2-2.8 1.4-2.9 0.6-3.4 0-3.4-3.5 1.1-1.7-2.1 4-4.6-0.7-3.1-1.1-3.1 0.8-2.3 0-2.8-0.3-2.7 6.9-5.1 2.8-0.9 1.5-2.4 0.7-6.9-3.2-5-2.6-0.5-2.5-1.2-1.9-5-3-0.2-3.2 0.2-3.5-2.5-1.7-4.6-0.7-8.1-1.3-4.1-0.9-0.7-1 0.1-0.8 0.7-0.9 0.2-2.3-1.7-5.6 2-5.2-1.2-2.1-1.3-2.2-2 0-3.2 1-3.1 0.8-1.1 0.5-1.2-0.9-0.7-1.1-0.3-1.1 0.2-1 0.8-1.8 2.3-2 2.1-3 0.5-2.8-1.9-0.5-1.7-0.2-1.7-1-0.6-1 1.1-0.3 1.8-0.1 5.7-1.7 2.7-5-2.3-4.6-4.2-1.6-1.6-1.6 0.2-1.5-2.2-1-2.8-1.2-1.5-1.5-1.2-1.1-2.7-2-1.3-4.8-3.1-2.7-1.3 0.8-1 7.4-6.1 8.7-5.4 2.5-1.1 5.5-2.2 1-0.4 6.1-0.7 2.7-0.3 4.3 0.5 8.4-0.8 1.5-0.1 6.8-0.6 12.9 3.9 3.6-0.3 0.5-0.1 0.4-0.1 7.5-2.3 15.7-1.3 1.6-0.2 8.9-0.8 1.1 0.8 1.7 2.5 1.7 1.7 1.9 0.5 8.9-1.9 14.2 0.8 9.3-0.7 0.5-0.2 7.5-2.7 1.3-0.4 1.7-1.1 6.9-4.6 7.3-7.5 3.1-4.5 2.6-4.8 1.8-5.4 0.6-6.1-1.2-6-0.3-3 0.9-2.2 3.7-3 7.5-3.9 0.1 0 4.1 8 6.3 12.5 1.3 5.5 3.2 8.3 12 23.7 9.3 24.9 1.5 2.7 4.9 6 1.9 5.1 22.5 32.3 8.8 12.8 10.5 11.7 1.5 1.2 7.1 8.3 0.3 3.5 0 4.2 0.9 3.5 4.8 2.7 1.4 2.9 3.9 12.9 1.8 3 2.1 1.3 1.8 1.8 6.2 12.1 3.7 4.7 1.3 2.6 0.4 2.7 1 2.6 6.5 7.2 2.1 5.9 1.9 12.9 2.5 7.1 7 9.7 0.5 2-0.8 2-1.3 1.9-0.7 1.8-0.1 1.7 1 5.3 1.2 15.1 1.2 7 4.5 14.3 0.4 7-1.4 6.4-3.1 5.9-2.5 6.9z"/>
+
+                <!-- 2. 경기도 -->
+                <path id="KR41" class="province-path" data-name="경기도" data-badge="경기" fill="#a8e6cf" d="M394.1 117.9l4.8 3.1 2 1.3 1.1 2.7 1.5 1.2 1.2 1.5 1 2.8 1.5 2.2 1.6-0.2 1.6 1.6 4.6 4.2 5 2.3 1.7-2.7 0.1-5.7 0.3-1.8 1-1.1 1 0.6 0.2 1.7 0.5 1.7 2.8 1.9 3-0.5 2-2.1 1.8-2.3 1-0.8 1.1-0.2 1.1 0.3 0.9 0.7-0.5 1.2-0.8 1.1-1 3.1 0 3.2 2.2 2 2.1 1.3 5.2 1.2 5.6-2 2.3 1.7 0.9-0.2 0.8-0.7 1-0.1 0.9 0.7 1.3 4.1 0.7 8.1 1.7 4.6 3.5 2.5 3.2-0.2 3 0.2 1.9 5 2.5 1.2 2.6 0.5 3.2 5-0.7 6.9-1.5 2.4-2.8 0.9-6.9 5.1 0.3 2.7 0 2.8-0.8 2.3 1.1 3.1 0.7 3.1-4 4.6 1.7 2.1 3.5-1.1 0 3.4-0.6 3.4-1.4 2.9-0.2 2.8 3 2.5 3.6-1.1 3.8 0.6 3.4 2.2 3.4 1.4 7.6 4.2 4.6 0.6 3.3 1.3 3.2 0.4 2 1.7 1.6 2.6-1.4 3.1-2.7 1.1-2.5 3-1.8 3.1 0.8 3.9-1.1 3.8-8.3 17.9-6.1 14.8-7.3 13.6-1 1.8-1.1 1.7-1 0.7-1.1 0.9-0.8 1.3-0.6 1.4-6.5 12.1-3.4 2.4-0.8-1-2.6-0.6-2.1 2.2-1.2 2.9-1.6 2.1-3.5 1.5-2.2 2.4-1.2 5-4.5 1.5-5.8 2.8-6.1 1.8-6.4-0.9-5.2-4.4-5.9-2.7-11.2 4.8-5.3 0-6.4-1.3 1.7-1.3 2.1-1 1.4-1.6 1-4.1-0.3-0.8-1.3-1.3-0.2-0.4 0.7-0.6 0.8-0.1 0.7 0 1.8-1 1.2-0.2 0.9-0.6 0.4-2-8.1 2.3-1.2 1.7 0.4 5.3-1 1.2-3.2 1-4.4-0.6-5.4-3.1-4.8-4.8-1.8-4.5 8.1-0.9 0-1.1-0.6-0.2-1.2-1 1.5-0.2 1.4 0.1 1.4 0.4 1.1 0.9-0.5-3.2-1.9-2.9-1.3-3.3 0.9-4.5-1.5-0.7-1.2 1.6-0.7 2.7-0.2 2.7-0.7 3-1.3 0.7-1.2-1.3-2.6 0.5-2.6 0.7-6.3-1.9 0-1.9-0.5-1.7 0.5-2.3-0.3-2.9 1.6-2.9 1.8-2.5 2.2-1.1 2.3-0.9 3.4 0 3.7-1 0.8-1.1 0.2-3.2-0.9-0.6-1.9 1-2.8 2.5-1.7-0.4-1.3-0.8-0.7-1.3 0-2.1-3.2 1.7-2.6 1.8-4.9 5.3-1.2 1-1.6 0.5-1.4 0-0.9-0.9 0-1.5 0.9-1.6 2-2.8-4 0.9-1.3-0.4-0.4-2.3 0.7-1.7 1.7-1 1.9-0.6 1.4-0.8 1.6-2.3-0.4-0.5-3.7 0.5-1.2-0.8-0.9-1.8-0.9-2.3-1.1-2.1 0.6-0.2 0.4-0.3 0.8-0.8 1 0.8 1.5-0.1 2.7-0.7 2.1 0.6 1.8 1.1 1.8 0.6 2.1-1-0.2 1.9 0.2 1.8 0.6 1.5 1.3 0.6 1.5-0.6 0.6-1.6 0.7-3.6 2.3-3.4 1.9 0.2 2.1 1.3 3-0.4-0.7-1.4-0.8-1.1-1.1-0.7-1.2-0.3-1.9 0-0.9-1.3-2-0.3-1.6 0.5-1.6-0.1-2.6-0.5-4.3-1.4-5.9-4.4-0.3-2 2.7-3.8 1.7-1.8 4.3-1.3 1-0.7 1.8-1.4 1.9-3.7 1.3-4.2-1.3-2.1-2.2-1.5-1.4-3.3 0-4-8-7.7-6.9 0.2-6.2 0.2-0.7-1.5-1-2.5-1.2-2-1.4-2.4-1.6-1.5 0-2.3-0.6-3.5-1.4-5.3-2-14.1 0.5-2.4 1.8-0.3 7.5 2.7 2.4-0.5 2-1 1.7-0.3 1.9 1.2 0.6 2 0.3 3.2-0.2 3.2-0.7 2.2-0.1 4.1 4.2 3.5 5.2 2.2 3.3 0.2-2.5-2.7-7.9-5.6 2.3-6.1 0.7-3.6-0.6-2.6-1.3-2.7-0.1-1.4-0.1-2 0.6-3.5 1.4-2.7-1-1.3-1.3 0.2-0.6 0.4 0-0.4 1.5-3.9 0-0.3 0.1-1.3 0.1-1.1 0-0.6-0.1-1 0-1.5 0-1 0.3-0.8 0.3-0.8 0.1-0.6-0.3-1.1-0.4-1.9-1-2.8 1.8-0.2 3.5-1.3 1.1-0.9 0.6-0.2 0.6-0.3 0.3-0.1 1.8-0.2 2 0.2 1.2-0.2 0.8-0.8 1.3-2 1.8-2.2 1.8-1.8 0.5-0.5 2.3-2.1 1.3-1.6 0.8-1.2 0.1-0.2 0.9-1.8 0.5-2.1 0.1-1.2 0.1-0.4 0.5-1.6 0.3-0.7 0.7-1.3 0.3-0.5 1.4-1.3 1-0.6 2.5-1.9 2.2-1.9 0.5-0.4 0.2-0.1 1.3-0.7 2-1.1 0.4-0.2 0.6-0.7 0-0.4 0-0.2-0.2-0.4-1.1-1.6 0-0.7 0.4-3.2 0.3-0.9 0.3-1.1 0.5-0.6 0.4-0.7 0.2-0.1 0.8-0.3 0.3-0.5 0.1-0.1z"/>
+
+                <!-- 3. 서울특별시 -->
+                <path id="KR11" class="province-path" data-name="서울특별시" data-badge="서울" fill="#ff7675" d="M411.7 230.4l3.7 0 3.2-1.2 2.8 0 1 2.5-0.4 2.5-1.9 1-2 1.4 0 3 1.1 1.3-2.3 3.1-1.3 2.3-3.5 2.1-3.9 0.9-4 2-1.5-3.6-3.4 0.8-3.4 1-2.4 1.4-2.4 0.4-5.8-0.2-4-5.2-4-1.2-2.7-1.8-0.7-4.9-2.7-3.8-3.2-4 2.1-4.3 3.8 0.2 4.3 2.7 3.2-1.1 2.9-1.8 0.2-2.9 0.8-2.7 6.1-0.6 3.1-4 1.9-4.1 2.7-2.9 4.3-1 4.8 0.4 2.4 4 0.9 5.5 1.4 3.8 0.1 4.2-1.3 4.8z"/>
+
+                <!-- 4. 인천광역시 -->
+                <path id="KR28" class="province-path" data-name="인천광역시" data-badge="인천" fill="#74b9ff" d="M342.3 230.6l6.2-0.2 6.9-0.2 8 7.7 0 4 1.4 3.3 2.2 1.5 1.3 2.1-1.3 4.2-1.9 3.7-1.8 1.4-1 0.7-4.3 1.3-0.4-1.2-7.1-0.9-3.3 4.2-3.4-2.6 1.4-3.1 1.8-2.7-1.1-1.9-2.5-1.3-2.2-1.2 0.3-3.1-0.4-2.5 1.3-2.3 3.9-1.2 1.2-0.6 0.3-1.4-1.9-0.5-0.5 1.5-2.8 0.3-0.7-1.7-0.3-3.1 0.7-4.2z m-5.5 6l0.5 0.5 0.6 0.9 0.7 0.7 0.5 1.1 0.4 0.9-0.8 0.3-1.1 0.9-0.5 0.6-2.3 0.6-1.1-0.2-1.4 0.7-3.2 1.3-1.7 1.6-1 1.7-5.9 4.4-1.3-0.3-1.2 0.2-0.6-0.2-0.5-2.1-1.1-0.6-0.5 0.5-0.5 0.2-0.1-0.4 0.2-0.6-0.3-0.8-0.8-0.1-0.6 0.7-0.8 0.6-1-0.4-1.5-0.4 0.9-0.8-0.3-1-1.5-1.4-0.4-0.9 0.5-1.2 0.8-0.3 1.2 0.6 6.1-4.3 4.4-0.5 3 0.1 2.8-1.5 0.9-3.8 1.9-0.7 1.6 1.6 0.7 0.3 0.8 0.4 0.8 0.3 0.8 0.1 0.8 0.1 1.1 0.6z"/>
+
+                <!-- 5. 충청북도 -->
+                <path id="KR43" class="province-path" data-name="충청북도" data-badge="충북" fill="#ffeaa7" d="M478.3 301.9l14.3-3.9 14.4-2-1.1 8.2 4.1-1 4.1 0.3 1.2 0.7 1.1 0.6 1.1-0.9 0.9-1.1 2.8-1.9-0.8-8.3 2.6-3.1 6.9-2.4 5.1 5.5 0 3.6 1.7 2.4 4.5-1.1 4.5-2.5 2.7-2.1 3.3 0.7 2.6-1.4 3.2-2.4 7.5 2.7 7.8 1.2 2.4 0.7-1.6 3.6-3.9 2.8-2.3 3.6 1.5 1.7 1.9 1 1.2 0.1 1.3-0.6 4.1-1.4 6.4-0.7 1.4 1.4-0.3 2.5 2.7 2.8 1 2.2 2.5-0.2 2.9-0.5 3.3-1 3.2-0.1 3.2 2.5 3.6 2.3 3.5 0.7 3.5 0.4 2.7 1.2 2.7 1.7-1.6 1.9-1.9 1.1-1.6-0.6-1.3 0.8-3.1 3.3-3.5 2.9-2.2 2.2-2.8 0.9-1.7 1.4-1.2 2.1-4.2 3-3 4.3-1.4 3.2-1.7 3.1 0.9 1.7 1.8 1.7-2 6.6-11.3 4.8-4.8-1.6-2.1-4.1-3.2-2.8-2.2-1.6-1.8-2-1.7 1.8-1.5 2.2-0.6 2.7-1 2.7-3.9-0.3-4.2-1.4-2.2-1.4-2.3 1.4-2.2 3-2.7 0.3-2.2-1.5-1.6 2.8-1.7 3.7-0.9 3.5 2.6 3.3 1.9 3.8-9.6-1.5-5.1-2.2-3 4.4-4.7 2.2-4.2 2.9-0.4 2 0.1 1.6-0.8 1.7-3 4.1-2 2.1-2 0.4-2 0.9 1.6 3.8 5.3 0.9 6.6 9.7-2.5 2.4-1.3 3.9-0.6 9.1-0.8 4.1 0.9 2.9 1.5 2.7-2 3.8-3 2.6 0.9 8 5.4-1.3 3.3 1.1 3.8 3.2 2.7 1.3 6.9-1.7 3 2.3 1.6 8.7-2.9-0.2-3.2-0.6-3.3 2.9 0.7 4.5 0.1 2.3-0.3 2.7-1.3 1.6-1.1 1.9-1.1 4.3-2.1 4.1-3.4 1.1-3.3 1.7-1.8 1.8-1.7 1.6-2-1.1-2-1.9-5 2.3-4.3 2.6-2.2-0.6-1.3-1.6-6-2-2.1-2.4-2.3-1.3-0.8 1.2-1.1 0.2-1.3-1.2-1.2-1.4-3.1-4.8-2.7-4.9-1.2-5.7 0.2-5.8-1.4-5-4.2-2.6-4-1.3-4.4 0.9-0.3-4.8 0.2-4.6 1.6-6.5 3.1-5.5 1.2-2.9 1.4-2.5 2.2-1.6 0.6-3-1.8-0.5-1.9-0.9-2.2 1.7-1.8 2.4-1.4-4.5-0.3-3-1.6-0.9 0.2-1.9-1.9-0.5-1.6 2.3-4.3 1-4.1-1.2 0.5-2.9-0.8-1.9-1.2-0.6-0.9-1-0.5-1.3 0.3-1.2 0.6-1.7 0.2-1.7-0.1-0.9-0.1-0.9-0.5-1 0.3-1.3 0.7-1.6 0.1-1.8-10.3-0.7-10 2 0.6-5.2 1.7-4.8-0.2-2.9 2.6-5.7 3.8-5.5 2.8-4.9 1.2-1.3 1.3 0.2 1.2-0.3 0.7-1.3 0.2-1.5 0.4-1.8 0.7-1.8 0.3-1.9-0.3-1.9-0.9-1.7-1.1-1.1 0.1-3.4-1.8-1.3-2.3-4.7-1.8-1-1.6-1.7-1.1-2.5 6.1-1.8 5.8-2.8 4.5-1.5 1.2-5 2.2-2.4 3.5-1.5 1.6-2.1 1.2-2.9 2.1-2.2 2.6 0.6 0.8 1 3.4-2.4 6.5-12.1 0.6-1.4 0.8-1.3 1.1-0.9 1-0.7 1.1-1.7 1-1.8z"/>
+
+                <!-- 6. 충청남도 -->
+                <path id="KR44" class="province-path" data-name="충청남도" data-badge="충남" fill="#fab1a0" d="M315.4 415.8l1 3.1 1.8 2.8 0.8 2.6-1.3-0.6-6 0.4-2-0.3-0.3-2.6 0.6-0.8 1.1-1 0.5-1.5-3.2 2-1.5-0.7 0.4-2.5 2.4-3.4-0.9-1-1.8 2.2-0.7-1.6-1.4 0.8 0.7-4-0.5-6.2-0.6-3.8-1.4-4.7 1.2-1.5 2.4-2.2 2.6-0.9 1.8 2.9 0.2 1-0.6 1.2-1 0.9 0.1 1.1 2.3 5.2 0.4 1.7-0.6 1.3 0.7 1.2 1.5 1 1.2 2.1-2.8 0 0 1 0.9 0.2 1.9 1.1-0.2 1-0.1 0.9 0.4 1.6z m75.4-75.5l6.4 1.3 5.3 0 11.2-4.8 5.9 2.7 5.2 4.4 6.4 0.9 1.1 2.5 1.6 1.7 1.8 1 2.3 4.7 1.8 1.3-0.1 3.4 1.1 1.1 0.9 1.7 0.3 1.9-0.3 1.9-0.7 1.8-0.4 1.8-0.2 1.5-0.7 1.3-1.2 0.3-1.3-0.2-1.2 1.3-2.8 4.9-3.8 5.5-19.3-7.7-3.1 8.7 0.4 25.6-2.1 2-1.2 3.5 12.3 2.4 9.3-2.5 7.2 11.4 2.5 4.8 0.7 12.2 2.8 9.1 6.7-1.7 5.9-4.4 1.9-0.7 3.6-2.8 1.9-7.3 1.8-2.9 0.7-3.9 1.8-2.4 2.2-1.7 1.9 0.9 1.8 0.5-0.6 3-2.2 1.6-1.4 2.5-1.2 2.9-3.1 5.5-1.6 6.5-0.2 4.6 0.3 4.8 4.4-0.9 4 1.3 4.2 2.6 1.4 5-0.2 5.8 1.2 5.7 2.7 4.9 3.1 4.8-3.2 3.3-3.3 2.9-4 1.1-4 0.2-2.9 0.7-7.9-1-0.5-1.4 0.9-1.9-0.8-1.7-1.7-0.4-4.5-2.3-6.1-11-4.4-3.8-2.2 2.3-1.8 2.8-2.9 0.6-1.9 0.9-2 0.7-7.4 1.4-3.8 1.5-4 0.7-2.9-4.5 1.2-7.4-5-1-14.1 4.5-7.6 1.6-6.5 0.7-6.1 7.6-2.8 0.8-2.7 1.9-2.3 2.2-2.5 1.2-3.1 0.5-2.8 1.3-2.1-1-0.7-1.2-0.2-1.5-0.7-2.1-1.1-1.8-2.3-3-1.2-2.1 1.9-1.5-0.9-1.1-1.9-0.7-1.7-0.6-3.1-5.4-2.3-1-1.9 1.1-0.8-0.1-0.1-1.8-3-2-2.7 0.5-0.8 3.1-0.5 1.1-0.9-0.9 0.6-4.9 4.6-2.3 4-1.3 5.7 1.7-2-3.4-1.1-1.3-1.5-1.1-1-0.2-1 0.7-0.8-0.5-1-1.1-0.9-1.2 2.9-7.8 1.6-3.5 2-1.3-1.5-1.8-5.8-1.8-2-1.1 2-1.9 6-1.5 1.3-1.7-0.9-2.2-2.1-0.6-4.5 0-0.9-0.7-1.6-1.9-1.1-1 0-1.1 1.8 0-2.1-3.8 2.5-1.4 2.8-0.8 2.6-3.8 5.6-1.6 2.6-1.4-7.9 0-1.9 1.1-2.9 4.4-2.2 0.4-1.3-1.7-1.2-3.1-0.8-3.2 0.1-1.9 2.8-3.3 1.3-2-0.4-0.9-2.6 0.9-1.2-1.1-1.1-0.7-0.6-0.2-0.6-1.5 0.5-1.4-0.1-1.6-0.6-2.9-0.9-1.2 0-0.7 1.8-0.1 2.7-1.3 2.9 0.1 0.2-2 0.8-1.9-1.1-1.4-1.6-0.4-2.2-2.1 1.4-2 1.9-1.5-1.3-2.4-3.2-0.6-0.7-2.8 1-2.1 3.2-0.5-1.8-2.1-0.6-1-0.5-1.5-1.1 1-1.9 2.1-2.2 0.9-0.4 1.2 0.1 1.2 0.9 1.4 0.2 2.9-1 3.3 0.6 4.4-1.4 3.8-1.3 1.5-2.5-1.9-2.6-0.1-2.6-1.8 0.6-9.1 0.9-3.3-1.6-0.7 0.5-4.3-1.5-1.8-2.2 0.4-1.2 2.2-0.3 2.7-1 2-3.1 0.1 1.3 2.6 2.4 3.9 0.9 2.8-1.5 1.3 0.2 1.4 2.3 3.1-2 0.4-1.8 1-1.5 1.4-1.2 1.8 0.1-1.3-0.2-1.2-0.3-1.2-0.5-0.9 1.9-4.2-4-6.5 1.2-3.3-1-4.6-2.5 1.4-3.6 4.5-2.6 1-1.6 0.3-1.4 0.6-1.4 0.1-1.6-1-0.4-0.8-0.6-1.5-0.2-1.6 0.7-0.7 5.6 0.1 1.4-1-0.1-2.6-1.4-2.6-2.1-1-2.2-0.7-1.7-1.4-0.7 2-0.4 4.2-0.8 2-1.6 1.4-0.5-1.4 0.2-4.2-0.3-4.1 0.4-1.2 3.4-4.4 0.7-1.5 0.6-2.2 0.4 1.7 0.6 1.4 0.7 1.4 1 1.4 0.7-0.7 0.9 0.1 1 0.3 1.1 0.3-1.4-2-1.4-2.6 3.8 1.1 1.6-0.4 1.1-2-3.5-0.2-2.1-1-0.3-2.1 2.2-3.6-3-2.6 0.2-2.3 2.3-1.9 3.3-1.2-0.8 4.1 0.3 1.2 1.9 0.4 3.3-0.1 0.9-0.6 0.9-1.6 0.3-3.8-0.4-5.1 0.6-4.2 3.2-1-0.4 2.4 0.1 3.7 0.6 3.7 1.7 4.4-0.9 1.6-1.3 1.4-0.8 1.5 0 1.5 0.9 2.5 0.1 0.7-0.7 0.8-2.5 1.6-0.5 0.4 0.1 1.5 0.5 1.6 0.7 0.9 1-0.5 2.3-2.1 1.7-0.1 3.9 2.7-2.8-6-1-3.8 1.4-1.7 2.2 2.8 1.3 0.8 0.7-1.8 0.5-0.6 1.5-0.5 2.7-0.7 0-1.1-1.1-0.1-2.6-1.1 0-1.1 3.2-0.8 2-3.1 0.5-3.8-1.1-2.8-1.2-0.4-3.5-0.1-1.8-0.7-1.3-1.6-0.4-1.5 0.6-0.6 2 1.4 0.9-2.6-1-1.6-2.1-0.6-2.5 0.2 1-1.3 1.4-1 1.4-0.2 1.4 0.7 1.3 1 1.1 0.3 0.5-0.6-0.6-1.2 0-1.3 5-0.1 2.4 0.8 1 2.3-0.7 1.4-1.3 1.5-0.8 1.9 0.9 2.7 1.2-1.2 1.5-0.8 1.3 0 0.6 1.4 0.2 1.2 0.6 1.1 0.1 1.2-0.2 0.4-1.2 1.5-0.4 1 0 7.6 0.4 2.2 1 1.5 1 0.6 0.5-0.8 0.5-4.2 2.5-8.1 0.6-4 0.7-0.9 1.6 1.1 2.4 2.6 1 1.8 0.6 1.7 1.1 1.1 1.9 0.1 0-1-1-1.3-1.1-3.5-1.1-1.7-8.3-8.8-0.6-0.5 0.5-1.8 1.1 0.2 1.4 1.3 2.2 2.7 1.1 1.1 1.4 0.6 1.7 0 1.3-0.8 0.1-1.1-0.9-1.1-1.9-0.5-2.6-1.2-2.8-2.7-1.3-3.9-0.3-2.6 2.5-0.1 2.2 1.1 1.9 1.7 2.7 1.9 2.6 1.8 1.1 1.1 2 1.4 2 1.1 1.4 2.3-0.7 2.3-1.3 1.6 0.3 1.2 1.3 2.5 0.2 1.6-0.5 2.8 1.5-1 0.6-1.3 0.3-1.4-0.5-4.1 0.6-1.4 0.8-1.5 1.3-2.3 2.2-1.1 2.1 0 2.4 0.3 2.6 1 3.3 0.8 2.3 1.6 2.9 2.9 0.2 3.7-2.2 7.3 1.7-1.1 2.5-3.3 1.4-0.2 1 1.4 0.5 2.5 0.3 4.8-0.1 1-0.6 2.3-0.2 1.4 0.3 1.4 1.2 2 1.1 5.3-0.3 1.5-2.3 0.6 0.4 1.5 0.6 0.9 0.7 0.7 1.2 0.5 0.8-3.8 1.3-2.2 0.7-2.4-1.1-4.3 2.7 0.8 2.9 0.4-4.7-5.2-1.4-2.9 2.8-1.2 2.5-0.4 5.9-2.4 2.6-2z"/>
+
+                <!-- 7. 세종특별자치시 -->
+                <path id="KR50" class="province-path" data-name="세종특별자치시" data-badge="세종" fill="#55efc4" d="M425.7 416.2l-9.3 2.5-12.3-2.4 1.2-3.5 2.1-2-0.4-25.6 3.1-8.7 19.3 7.7-2.6 5.7 0.2 2.9-1.7 4.8-0.6 5.2 10-2 10.3 0.7-0.1 1.8-0.7 1.6-0.3 1.3 0.5 1 0.1 0.9 0.1 0.9-0.2 1.7-0.6 1.7-3.1-0.3-8.8 2.4-6.2 1.7z"/>
+
+                <!-- 8. 대전광역시 -->
+                <path id="KR30" class="province-path" data-name="대전광역시" data-badge="대전" fill="#a29bfe" d="M461.4 430l-0.7 3.9-1.8 2.9-1.9 7.3-3.6 2.8-1.9 0.7-5.9 4.4-6.7 1.7-2.8-9.1-0.7-12.2-2.5-4.8-7.2-11.4 6.2-1.7 8.8-2.4 3.1 0.3-0.3 1.2 0.5 1.3 0.9 1 1.2 0.6 0.8 1.9-0.5 2.9 4.1 1.2 4.3-1 1.6-2.3 1.9 0.5-0.2 1.9 1.6 0.9 0.3 3 1.4 4.5z"/>
+
+                <!-- 9. 경상북도 -->
+                <path id="KR47" class="province-path" data-name="경상북도" data-badge="경북" fill="#81ecec" d="M619.7 320.4l3.5 1.9 3.4 1.4 4 0.9 3.5 0.3 0.8-3.6 0.4-3.9-0.9-4.2 2.5-3 3.7-1.8 3.7 0.3 1.9 3.4 2.6 0.6 2.3 1.2-0.3 2.9 0.3 3 4.1-1.6 3.8-3 1.7 0.7 1.1 1.5 1.5 0.2 1.8-0.7 5.3 0.9 5 2.3 3.6-0.9 3.6-2 4.7 1.1 4.2 2.6 1.3 3.9-3.2 2.4-3.9-1.6-2.6 1-2.3 1.7-1 4.2 0.6 5.5 2.8 4.2 4.5 2.2 1 3.6 1.3 3.1 3.1 1.3 2.9 1.7 9.9 0.7-0.5 3.9 1.1 1.1 1.1 1.2-1.4 4.3-1.9 4.5 0.4 4.7 1.2 4.2 0.4 3.8-1.5 4 9.4 3.5 4.4-2 4.5 1.1 1.3 0 0.1 0.3 0.7 6.7 1.8 6.9 0.8 7-0.9 14.3-0.8 3.1-4.2 5.1-1.6 2.9-0.7 3.3-0.6 20.3 0.4 2.8 0.9 1.5 0.9 0.6 0.7 0.9 0.8 5.7 1 4.3 1.1 0.8 0.7 1-0.5 2.6-1.1 1.5-1.4 0.6-1.3 0.5-2.3 1.8-0.1 2.3 2.8 2.7 2.1 2.3 2.2 2.6 2.7 0.5 3.5-2.7 8.6-9.5 1.7-2.7 2.2 1.7 0.5 2.9 1 3 0.7 3.4-2.2 3.3-4.8 9.7-0.4 4.4-1.5 11.4-3.5 10 0.2 6.2-3.6 10.8-2.6 5.2-1.2 2.6 1.1 3 1.1 1.3-0.1 0-10.8-2.6-12.6 2.2-2.3-0.6-1.6-1.2-0.4-2.2 0-2.5-1.3-2-4.8-2.1-4.6-1-4.7 0.8-5.7 2-4.6 3.5 0.8 2.3 1.3 2.2-0.9 1.6-2.1 0.1-3.4 2-3.3 2.7-3.8 1.2-4-1.8-5.2-1.3-4.9 2-1.6 2-1.8 1.6-2 0.3-1.9 0.7-4.5 3.5-5-0.2-4.2-2.2-4.5-1.3-5 0.9-5 0.5-4.2-2.7-3.4-4.2-1.1-9.2-3.2 2.4-3.3 4.8-3.7-0.7-7.3 3.7-3.8-0.8-3.5-2.6-3.7-1.7-3.9-0.7-4.1 0.6-8.4-0.4-2.1-7.7 1.6-3.7 0.1-4-1.8-2.1-2.1-1.3-0.4-1.4-0.8-1.6-3-2.1-1.8-3.5-2.6-2.8-3.5-1.2-3.8 0.1-3.9-0.3-2.2-1.5-1.8-1.5-4.1-0.3-1.1-0.4-1.1-0.5-0.5-1.3-0.2-1.4-1.2-1-1.3-1-2.7-1.6-1.1-3.7 0.6-10.7-5.5-9.4 3.3-1.7 3.4-1.1 2.1-4.1 1.1-4.3 1.1-1.9 1.3-1.6 0.3-2.7-0.1-2.3-0.7-4.5 3.3-2.9 3.2 0.6 2.9 0.2-1.6-8.7-3-2.3-6.9 1.7-2.7-1.3-3.8-3.2-3.3-1.1-5.4 1.3-0.9-8 3-2.6 2-3.8-1.5-2.7-0.9-2.9 0.8-4.1 0.6-9.1 1.3-3.9 2.5-2.4-6.6-9.7-5.3-0.9-1.6-3.8 2-0.9 2-0.4 2-2.1 3-4.1 0.8-1.7-0.1-1.6 0.4-2 4.2-2.9 4.7-2.2 3-4.4 5.1 2.2 9.6 1.5-1.9-3.8-2.6-3.3 0.9-3.5 1.7-3.7 1.6-2.8 2.2 1.5 2.7-0.3 2.2-3 2.3-1.4 2.2 1.4 4.2 1.4 3.9 0.3 1-2.7 0.6-2.7 1.5-2.2 1.7-1.8 1.8 2 2.2 1.6 3.2 2.8 2.1 4.1 4.8 1.6 11.3-4.8 2-6.6-1.8-1.7-0.9-1.7 1.7-3.1 1.4-3.2 3-4.3 4.2-3 1.2-2.1 1.7-1.4 2.8-0.9 2.2-2.2 3.5-2.9 3.1-3.3 1.3-0.8 1.6 0.6 1.9-1.1 1.6-1.9z m12.4 197.8l2.1-2.2 0.7-2.6-0.1-2.9-0.2-2.6-1.5-1.3-1.1-1.6 0-4.2 0.6-1.2 0.1-1.3-1.7-3-5.5-4-7.1 0.5-8.6 1.2-6.4 5.3 0.8 7.6-2.3 2.5-1.5 3.3 1.3 0.2 1.2 0.5-0.2 1.7-0.6 1.5-2.2 0.4-2 0-1.9 2.6 0.8 3.1 2.1 0.8 2 2 1.6 3.1 2.4 1.9 1.7 1.1 1.2 1.1 1.1-0.9 1.9-3.4 1.9-1.5 4.4 0.4 7.8 2 3.1-1.8 0.4-1.6 0-1 1.3-3.4 0.1-1.4 0-1.1 1.3-0.1 1 0.3z m293.1-287l2.3 1.8-0.1 4.3-1.5 4.9-1.6 3.2-2.6 1.3-3.4-0.7-3.4-2-2.2-2.7-0.7-3.5 1.1-2.6 2.5-1.6 4.8-0.8 3.2-1.2 1.6-0.4z"/>
+
+                <!-- 10. 대구광역시 -->
+                <path id="KR27" class="province-path" data-name="대구광역시" data-badge="대구" fill="#ffbe76" d="M632.1 518.2l-1-0.3-1.3 0.1 0 1.1-0.1 1.4-1.3 3.4 0 1-0.4 1.6-3.1 1.8-7.8-2-4.4-0.4-1.9 1.5-1.9 3.4-1.1 0.9-1.2-1.1-1.7-1.1-2.4-1.9-1.6-3.1-2-2-2.1-0.8-0.8-3.1 1.9-2.6 2 0 2.2-0.4 0.6-1.5 0.2-1.7-1.2-0.5-1.3-0.2 1.5-3.3 2.3-2.5-0.8-7.6 6.4-5.3 8.6-1.2 7.1-0.5 5.5 4 1.7 3-0.1 1.3-0.6 1.2 0 4.2 1.1 1.6 1.5 1.3 0.2 2.6 0.1 2.9-0.7 2.6-2.1 2.2z"/>
+
+                <!-- 11. 전북특별자치도 -->
+                <path id="KR45" class="province-path" data-name="전북특별자치도" data-badge="전북" fill="#f6e58d" d="M370.5 485l6.1-7.6 6.5-0.7 7.6-1.6 14.1-4.5 5 1-1.2 7.4 2.9 4.5 4-0.7 3.8-1.5 7.4-1.4 2-0.7 1.9-0.9 2.9-0.6 1.8-2.8 2.2-2.3 4.4 3.8 6.1 11 4.5 2.3 1.7 0.4 0.8 1.7-0.9 1.9 0.5 1.4 7.9 1 2.9-0.7 4-0.2 4-1.1 3.3-2.9 3.2-3.3 1.2 1.4 1.3 1.2 1.1-0.2 0.8-1.2 2.3 1.3 2.1 2.4 6 2 1.3 1.6 2.2 0.6 4.3-2.6 5-2.3 2 1.9 2 1.1 1.7-1.6 1.8-1.8 5.5 9.4-0.6 10.7-5 5.3-1.3 3.5-6.7 3.6-3.4 1.1-1.8-0.2-1.3 0.8-2.6 5.5-2.9 3.1-3.1 2.8-1.5 4.3-0.4 5.2-1.7 3.7-2.1 3.9-1.6 5.1-1.2 5.2-1.9 3.8-0.1 4.2 3.5 1.5 0.5 1.8 0.2 2.1 1.5 4-0.2 4.2 1.4 3.2 1.9 1.3-0.8 4.5-5.7 6.8-0.9 4.5-0.1 4-2.9 3-7.7-6.3-8.7-3.1-4.9 2.7-4 4.3-4.2 0.6-4.5 0-4.9 0.7-5-0.1-2.3-1.4-2.1-1.6-2.4 0.6-2.8 0-4.1 0.7-3.9 2.3-5-0.7-3.3-3.5 0.2-5.5-2.8-3.1-0.8-3.1 1.2-4.8-2.7-4.2-4 0.2-1 1.7-1.3 1.3-0.9 2.2-0.3 2.4-4.2 0.1-6.4-8.7-4.1-3.4-2.4-1-2.4-0.2-2.3 2.7-4.6-0.4-3.4 3 0 2.3 0.1 2.2-1.2 1.9-1.8 1.3 0.1 1.8 0.3 1.7-1.1 2.3-1.8 1.6-2.2 1-2.4 0.7-1.9 1.2-1.8 1.4-4.6 0.6-4.3 1.6-4 1-3.4-1.1 0.2-4.5 0.9-4.5 0.8-6.1-4-1-13.1 3.6-2.8 0.9 0 0.1-1.9-2.2-0.7-1.8 1-3.9 2.3-4.9 3.7-8.5 3.1-4.5 4.4-1.6 5.1-1 4.3-0.3 2-1.6 1.9-2.7 2.7-0.7 2.4 2.7 2.5 3.1 1.8 0.6-1.8-6.2-1.2-2.9-2.1-1.1-19.2 3.1-6.7-4.2 0.4-4.5 0.1-1.8 3.2-1.5 2.8-2.8 2.5-2.9 4.1-2.4 5-2.8 3.8-5.3 0.5-4.9 2.1-1.3 1.6-1 0.8-0.7 4.9-0.5 4.7 0.6 3 2.4 2.2 0.5 1.4 2.5 0.6-1.4 0.5-1.8 0.2-2-1.8-1.5-1.3-0.9-2.6-1.3-2.9-2-2.4-1.8-1.3-0.6 0.4-1.4 1.1-1.6 1.1-0.9 1.3-0.3 7.5 0.5 1.7-0.2 1.2-0.6 0.8-1.5 0.4-1.2 0.6-0.9 1.9-0.3 0.6-0.5-0.7-1.3-1.5-1.2-1.6-0.6-0.4 0.3-10 4-3.3 0.2-6.6-0.4-6.5-0.5 0-2.9-0.4-4-1.3-1.1-4-1.4-6 1-0.6-5.1 12.3-1.3 6.7-0.8 6.7-0.4 2.2-1.3 2.4 0.6 2.8-1.4 5-3.8 6.3-2.6 2.7-1.9 0.3-2.4-8 2.5z"/>
+
+                <!-- 12. 광주광역시 -->
+                <path id="KR29" class="province-path" data-name="광주광역시" data-badge="광주" fill="#ff9ff3" d="M394 619.8l2.8 7.6-5.4 7.2-8.3-1.4-7.4-4.4-3.7-8.2 2.9-2.7 4.9 1.2 3.5-0.8 3.7-1.1 7 2.6z"/>
+
+                <!-- 13. 전라남도 -->
+                <path id="KR46" class="province-path" data-name="전라남도" data-badge="전남" fill="#55efc4" d="M319.7 598l0-0.1 2.8-0.9 13.1-3.6 4 1-0.8 6.1-0.9 4.5-0.2 4.5 3.4 1.1 4-1 4.3-1.6 4.6-0.6 1.8-1.4 1.9-1.2 2.4-0.7 2.2-1 1.8-1.6 1.1-2.3-0.3-1.7-0.1-1.8 1.8-1.3 1.2-1.9-0.1-2.2 0-2.3 3.4-3 4.6 0.4 2.3-2.7 2.4 0.2 2.4 1 4.1 3.4 6.4 8.7 4.2-0.1 0.3-2.4 0.9-2.2 1.3-1.3 1-1.7 4-0.2 2.7 4.2-1.2 4.8 0.8 3.1 2.8 3.1-0.2 5.5 3.3 3.5 5 0.7 3.9-2.3 4.1-0.7 2.8 0 2.4-0.6 2.1 1.6 2.3 1.4 5 0.1 4.9-0.7 4.5 0 4.2-0.6 4-4.3 4.9-2.7 8.7 3.1 7.7 6.3-0.7 3.6 2.8 3.3 1.3 4.2 0.6 8.8 1.8 3.3 3.4 2.5 3 3.1 1.2 3.5 1.4 3.1 8.5 9.2 1.8 4.5 0 3.1 0.3 0.7-0.9-0.2-5.5 0-1.8-0.3-0.7-0.8-0.3-1.3-0.8-1.6-1.6-1.2-0.4 1.2 0.3 2 0.3 0.9-1 3-0.6 1.1-1.2 1.4-5.1 4.1-2.9 1.3-2-1.7-2.6-5.3-2.1-0.8-1.5 2.1-0.7 3.3 0.1 2.8 1.3 2.9 2.1 3.8 2.4 3.3 2.2 1.4 1.5 1.9 1.4 0.7 1.7-1 4.2-4 2.9-0.4 2.5 0.5 2.3 0.1 2.6-1.3-0.2 3.2-0.4 2.4-1.4 4.6-1.5 8.3-1.2 1.9-4.7 1.6-3.8-1.9-3-0.7-2.5 5.5-0.8-0.5-0.2 0-0.2 0.3-0.7 0.2 1.1 2.1 0.8 2.4 1 7.3-0.6 1.4-1.4-0.8-2.3-2.3-3.2-0.4-2.4-1.3-1.6-2.5-0.6-3.7 0.8-3.5 1.8-3.4 1.2-3.2-0.6-2.8-1.1-1.6-2.1-4.6-0.6-0.4-0.8 0-0.8-0.1-0.6-0.8-0.1-0.8 0.2-1 0.4-0.6-2-4.4-0.4-1.6 0.2-0.9 0.6-1.7 0.1-0.8-0.3-0.9-0.6-0.8-0.7-0.2-0.3 0.7-0.4 0.4-2.3 5.9-0.9 1.2-0.5 0.4-0.7 0-4.6 1.7-2.7 0.3-5.9-0.1-2.2 0.6 1.8 1.5 3.5 1.5 2.9 0.9 0 1-5.8 1.8-2.9 1.7-0.5 2.2 1.2 1 2.5-1 1.4 0.5 0.9 1.6-0.2 0.6-0.8 0.2-0.3 0.4 1.8 6.6 4 3.5 4.2 2.7 2.9 4.2-1.4-0.2-2.4 0-1 0.2 5.8 2.2 0.8 1.9 0.4 3.4-1.3 1.2-1.4 1.2-2.6-0.1-1.7 0.4-6.2-3.8-1.9-0.7-1.8 0.4-2.2 1-1.8 1.3-0.8 1.3 0.3 0.5 1.6 3.4 1.9 0.4 1.2 0.8 5.1-1.4 2.8 2.4-6.4 5.9-2.3 3.3-2.5-1.2-3.9 3 0.4 2.9 1.8 1.9-3.8 0-5.5-7.3-1.9-4-5.1-5.5-1.6 0.4-5.3 2.8 0.5 1.7 0.4 0.6-2.2-0.7-2.1-0.4-1.9-1-1.2-2.4-0.2-2.4 0.9-1.4 3-1.8 1-0.8 2.7-3.7 1.7-3.5 0.9-1.2 2-1-0.1 2.7-0.7 2.7-2 4.8 4-0.2 3.3-1.3 2-2.7 0-4.9-0.8-1.9-1.1-1.1-0.8-1.2-0.1-2.5 0.7-1.3 3.9-4.4 1.5 0.8 0.9 1 0.2 1.3-0.7 1.5 0.8 2.2 1.2 1.5 1.5 0.5 2.1-0.8 0.9-1.1 1.9-4 1-1.7-1.9-2.8-0.7-3-1-1.3-2.5 2-3 1.3-2.4-2.1-3.4-5.4-1.9 3-2.7 7.1-1.9 2.3-2 0.8-1.6-0.1-3.4-0.7-1.6 0.6-1.5 1.3-2.5 3.3-1.1 0.9-4.9 2.9-2.7 2-1.7 1-1.7 0.5-1 0.5-0.2 1.4 0 1.8-0.2 1.9-0.9 1.4-1.3 1.4-0.6 1.8 1 2.1-7.5 7.4 0.3 6.8-1.3 1.1-3.6-1.8-1.2 1.5-0.6 1.6 0.1 1.7 0.8 2-1.8-0.6-3.8-2.7-5.2-1.5-1.2-0.8-1-3.1 0.5-8.3-0.5-3.3 0.7-2-0.1-2.6-0.9-2.2-1.6-1.1-1.4 0.4-1.5 1.4-1.1 1.8-0.5 1.5 0.6 2.3 0.8 2 0.1 1.4-4.2 1.4 0.5 2 3.1 3.8-5.2 3.1-2 1.8 2 0.8 0.5 0.3 0.1 0.8-0.1 0.8-0.5 0.4-0.8-0.2-1.3-0.7-0.6-0.2-1.8 0.3-0.4 0.7 0 1.2-0.7 1.7-1 0.7-4.1 1-1.5 1.3-0.5 1-3.3 11.1-0.3 1.6 0 1.9-3.3-0.7-6.2 2.1-1.6-0.4-0.2-1.9 1.3-3.9-0.3-1.9-1.2-1.1-1.7-0.3-3.6 0.2 0-1.1 0.8-0.9 0.2-0.7 0.3-2.5 0.4-0.1 0.6 0.2 0.6-0.4 1.9-3.5 0.4-1.7-0.5-1.7-0.7-0.5-1-0.4-2-0.2-1.5-0.4-0.2-0.9 0.4-0.8 0.3-0.2 0.1-2.1 0.5-2.1-0.2-1.1-2.2 0.8 0.6-4 2.7-2 3.6-0.7 3.4-0.1-0.6-1.2-0.9-1-1-0.7-1.3-0.4 2.1-1.5 1.3-1.8 0.1-1.5-1.7-1-0.6 0.3-1.2 1.5-0.9 0.6-1.1 0-1.7-1.1-1 0-0.8 0.7-0.6 1.1-0.4 1.5-1.2 0.3-1.2 0-1.3-0.3-2.9 0.1-1.6 0.3-2 0.8-0.2-2.7-1.2-1.5-3.2-1.6 0-0.5-0.7-1.3-0.8-0.8-0.4 1.1-0.4 0.6-0.9 0.5-1.1 0.3-0.9-0.4-2.8-2.7-0.4-0.1-0.4-1.7 0.2-0.5 0.6-0.2 0.5-0.9 0.5 0.8 1.4 0 1-0.8-0.6-1.7-3.6-1.8-2.8-2-0.3-4.8 1.2-5.3 1.4-3.6 0.2-1.3-0.1-1.5 0.2-1.3 1.1-0.5 1 0.1 1.1 0.3 0.7 0.5 0.9 2 4.2 6.2-1.3 1.7-0.4 1.6 0.2 1.7 0.5 1.8 2.8 7.9 1.7 1 6.7 1.1 2.9 2 1.5-0.1 1.1-2.9-1.5 0.3-0.8-0.4-2.8-0.7-1.3-2-1.7-1.7 0.4-3.8-1.8 0.3-0.8 2.3-1.4 0.2-0.9-3.1-0.4-4.1 1-2.4-0.8-2.9 3.8-0.3 5.6 1.2 0.8 1.3-0.4 2.2 0.1 0.6-0.1 0.7 0.3 1 1.4 0.9 0.9 1.1 1.7 1.2 2.5 0.9 1.4 1.4 1.9 1.4 1.4 0.9 0.6-0.7-2.8-3.7 1.7-0.4 2.5 1.4 3.2 1.8 3.9 1.3 2.9-0.8-2.9-0.5-2.3-1.4-4.1-3.6 1-1.2-2.9-2.2-4.5-5.7-2.4-1.1-3.4-0.7-4 0.2-2.8-1.7-3.4 0.9-3.1-1.1-0.4-1.5 1.9-2.5 1.9-0.7 4 0.6 5.2-2.3 6.2 4.6 2.1-0.4 0.5 0.3 0.3 0.4 0.4 0.2 0.6 0.3-0.6-3.2 0.3-2.9 1.6-2.1 3.4-0.8 6.2 1.8 3.1 0.3-0.9-2.1 2.1-1.1 1.1-0.2 1.4 0-2-2.3-3.1-0.5-7 0.6 0.5-1.6-0.2-1.1-0.3-1.1 0-1.7 0.5-1.1 0.7-0.8 0.6-1.1 0-1.7-1.1-2.4-1.8-0.6-2 1-1.5 2-0.2 1.4 0.9 2.8 0.2 1.5-0.2 0.2-1.7 3.3-1.5 5.6-1.4 1.9-2.7 0.2 0-0.3-0.8-0.7 0.5-0.9 0.7-1.7 0.6-0.9-1.8-0.9-1.3 0.6-1.2 1-1.7 0.6-3.7-0.8-1.1 0.5-0.2 1.7-1.9 0-2.9 0.9-1.4-0.7-0.5-1.7 1-1.7 2.7-2.7 1-1.6 0.6-1.2 0.2-1.1 0.1-1.3-0.4-2.4 0.5-1.3 1.7-1.5-1.6-1.3-1.5-2.8-0.8-3.2 0.2-2.8 1.9-1.7 2.6-1.7 0.8-1.5-3.4-0.8-1.6 0.3-0.9 0.8-0.7 0.8-1 0.4-1.3 0.6 0.2 1.7 0.6 1.8 0.1 1.6-1.9 1.7-2.5 0.2-2.3-0.8-1.7-1.1 1.2-0.9 0.6-0.2-1.2-0.9-1-1-0.8-1.2-0.7-1.5 1.6-0.8 1.5 0 3.4 0.8-0.4-3.6 3.7-3.8-1-3.4-3.8-5.4-2.4-2.2-2.6-0.9 1.1 3.8-1 2.1-1.9 0.1-1.9-2.6 1.3-1.7-3.5-4.7-0.5-2.7 1.9-2.3 2.8-0.4 2.5 1.3 1.1 2.6 1.7-1.1 0.9-1.9 1.1-3.8 1 1.9 0.2 1.6-0.4 3.1-0.6 1.5-0.2 1 0.3 1 0.5 0 0.7-0.3 0.4 0.3 0.5 2.2 0.2 0.9 0.4 0.6 1.7 0.9 1.3 0.5 2.3 0.1 1 0.6-0.8 1.9 0.2 1.8 1 1.7 1.4 1.5 3.5-7.8 0.3-2.6 0-3-0.7-1-2.6-0.7-1-0.6-0.9-0.9-1.4-3.7-4.5-5.2-1-2.4 0.3-0.8 0.6-0.7 0.7-0.9 0.3-1.5-1.5-1.1-0.7-1.3 0.3-2.3-1.7 0.7-1.8 0.3-3.9 0.1 1.5-1.9 2.5-0.6 2.8-0.1 2.5-0.6-0.8-0.4-0.5-0.3-0.5-0.4-1-0.2 0.6-1.5 0.8-0.9 0.9-0.6 0.9-1 0.5-1.2-0.3-1.1-0.4-1.1-0.2-1.1 0.4-2.6 1.2-2.6 3-4.5 0.8 0.8 2 2.6 2.4 0.7 1.2-0.1-0.3-1.2-2.6-2.9z"/>
+
+                <!-- 14. 경상남도 -->
+                <path id="KR48" class="province-path" data-name="경상남도" data-badge="경남" fill="#fd79a8" d="M479.7 613.6l2.9-3 0.1-4 0.9-4.5 5.7-6.8 0.8-4.5-1.9-1.3-1.4-3.2 0.2-4.2-1.5-4-0.2-2.1-0.5-1.8-3.5-1.5 0.1-4.2 1.9-3.8 1.2-5.2 1.6-5.1 2.1-3.9 1.7-3.7 0.4-5.2 1.5-4.3 3.1-2.8 2.9-3.1 2.6-5.5 1.3-0.8 1.8 0.2 3.4-1.1 6.7-3.6 1.3-3.5 5-5.3 1.1 3.7 2.7 1.6 1.3 1 1.2 1 0.2 1.4 0.5 1.3 1.1 0.5 1.1 0.4 4.1 0.3 1.8 1.5 2.2 1.5 3.9 0.3 3.8-0.1 3.5 1.2 2.6 2.8 1.8 3.5 3 2.1 0.8 1.6 0.4 1.4 2.1 1.3 1.8 2.1-0.1 4-1.6 3.7 2.1 7.7 8.4 0.4 4.1-0.6 3.9 0.7 3.7 1.7 3.5 2.6 3.8 0.8 7.3-3.7 3.7 0.7 3.3-4.8 3.2-2.4 1.1 9.2 3.4 4.2 4.2 2.7 5-0.5 5-0.9 4.5 1.3 4.2 2.2 5 0.2 4.5-3.5 1.9-0.7 2-0.3 1.8-1.6 1.6-2 4.9-2 5.2 1.3 4 1.8 3.8-1.2 0.6 6.6-3.4 6.8 2 4.1 8.4 1.3 3.5 2.7 5.8 6.7 7 3.9 3.1 2.4 0.9 4.6 3 2.9 3.8 1.4 0.6 0.5-0.6 2.2-0.3 3-0.8 1.6-0.9 1.4 0.8 2.3 0 0.9-1.5 3.1-2.2 4.6-2.4 2.9-1.3 2.7-0.2 0.5-0.3-0.6-2.7-2.8-2.5-3.1-3.1-2.6-2.4-3.3-0.8-3.7-2.6-1.7-3.5-0.1-3.2 1.3-2.5 1.9-2 2.4-1.4 9.8-1.9 2.9-2.1 2.6-1.1 2-0.6-0.6-1.3 1.9-4.1 7.3-1.9 0.1-0.1-3.4 0.1-3.1-0.9-0.2-1.2 2.7-0.9 3.9-3.4-0.4-8.9 0.2-0.5-3.1-0.9-1.6-1.3 4.6-1.3 0.7-3.2-1.4-1.5-2.8-1.6-0.2-2.1 1.6 0-7.2-0.5-0.6-1.2 0.4-1 1.6 0 2.5-2.2-1.7-1.7-2.4-1.8-1.5-2.8 1.1 0.6-2.3-1.1-3.4 0.5-1.2-1.3-4.4-0.8-0.4-1.6 1.4-1.6 2.6-0.1 1.8 1.7 3.6 1 4.4 0.6 1.5 1.1 2 2.3 3.1 0.3 1.5-0.6 2.2 1 0.2 1.7 0.7 1 0.3-1.2 0.8-1.2 0.3-2.8 0-1.4-0.4-0.4-0.8-0.1-1.1-0.4-1.1-1.3-1.4-1-0.7-7.3-2.6-2-0.1-4.5 0.8-1.2 0.6 0.1 1.2 1.5 2.2-2.5 0.5-4.6 2.4-5.4 1.4-0.7 2.1-0.2 2.3-1.5 1.5 0 1.1 13.6-7.2 2.2-0.2 0.5 3 0.8 2.1 0.3 1.9-1.1 2.2-1.7 1-2.7 0.4-2.6-0.1-1.8-0.7-0.9 1.6 0.6 0.8 1.3 0.7 0.9 1.4 0.1 0.8 0.1 1.3-0.2 3.4-1 6.8 1.2 1.2 1.2-0.4 0.9-1.3 0.5-1.7 1.8 2.2-1.9 3.4-3.4 4.5-3 0.9-4.1-0.3 0-2.5 2.7-0.1 1.1-0.2 0.7-1.1-8.5-0.9-1.7-0.7-2-2.7-0.2-1.4 1.4-0.9 3.1-1.2-3.1-6.2-2.2 2.2-2.3 4.3-3.1 0.2-2.9-3.8-1.5-1-3-0.3-1.4 0.8-0.8 2-0.2 2.6 0 2.4-2.8-0.5-6.3 0.3-2.5-1.4-0.3-0.9 0-2.4-0.2-0.6-0.6-0.2-1.5 0.3-2-0.5-3.2-0.3-1.1-0.6-0.6-1.3 0.1-1.3 0.3-1.2 0.2-1.1-0.2-12.3 0.2-2 0.4-0.9 0.7-1.2 0.6-1.6 0.2-2-2.1 2.5-1.8 3-2.1 2.2-3.3 0.3 2.5 5.8-1.7 1.2-3.7-0.1-3.5 2.2-1.4-3.9-0.9-1.7-1.5-1.1-0.4 5.3-1.4 4.2-2.9 2.5-3.6 0.4-1.4-0.6-1.3-0.3-1.1 0.1-0.8 0.8-2.1-1.7-1.4-0.4-0.3-0.7 0-3.1-1.8-4.5-8.5-9.2-1.4-3.1-1.2-3.5-3-3.1-3.4-2.5-1.8-3.3-0.6-8.8-1.3-4.2-2.8-3.3 0.7-3.6z"/>
+
+                <!-- 15. 울산광역시 -->
+                <path id="KR31" class="province-path" data-name="울산광역시" data-badge="울산" fill="#a29bfe" d="M703.6 607.1l-0.6-0.5-3.8-1.4-3-2.9-0.9-4.6-3.1-2.4-7-3.9-5.8-6.7-3.5-2.7-8.4-1.3-2-4.1 3.4-6.8-0.6-6.6 3.3-2.7 3.4-2 2.1-0.1 0.9-1.6-1.3-2.2-0.8-2.3 4.6-3.5 5.7-2 4.7-0.8 4.6 1 4.8 2.1 1.3 2 0 2.5 0.4 2.2 1.6 1.2 2.3 0.6 12.6-2.2 10.8 2.6 0.1 0 0.2 0.2 0.9 1.6-0.5 3.6-0.3 4.3-0.9 6.5-1.4 2.7-2.2 3.1-2.1 1.1-0.9-3-0.8-3.8-1.7-2.9-1.9-0.4-1.1 3.2 1.8 0.4 1.1 1.4 0.6 2.1 0.1 2.4-0.6 2.2-1.4 0.5-1.6 0.2-1.1 1 0.2 1.2 0.2 3.1 0.6 3.2-1.3 2.1-1.1 2 1.1 1.6 0.9 0.9-0.2 2.3-2.8 0.9-2.6 1.6-3.8 3.7-3.2-0.1 0 0.2z"/>
+
+                <!-- 16. 부산광역시 -->
+                <path id="KR26" class="province-path" data-name="부산광역시" data-badge="부산" fill="#00cec9" d="M662.1 637.3l1.1-2 2.1-2.6 1.9-2.9 1.4-9.8 2-2.4 2.5-1.9 3.2-1.3 3.5 0.1 2.6 1.7 0.8 3.7 2.4 3.3 3.1 2.6 2.5 3.1 2.7 2.8 0.3 0.6-0.7 1.4-2.1-0.1-1.5 0-2 0.3-1.4-0.1-1.4 0.6-1.7 0.2-0.1 2.4 1.1 1.6 0.2 1.9-0.7 2.2-3.1 1.4-2.4-2.1-1.5-1.2-1.1-1.4-3.6 3.8-1.6 3.1-0.5 3.2-1.1 0.8-0.6-1.7-1.7-1.7 0.2 1.5 0.3 3.4-1 0-0.5-1.1-0.6-0.3-1.4 1-1.3 0.8-0.9-1.1-1.1-3.8 0.5-3.3 1-4.3 0.2-2.4z"/>
+
+                <!-- 17. 제주특별자치도 -->
+                <path id="KR49" class="province-path" data-name="제주특별자치도" data-badge="제주" fill="#fab1a0" d="M388.7 909l1 2.1-0.6 0.8-1.3 0.4-1 1.1 0.1 0.9 0.9 1.5 0 0.9-0.5 0.9-1.2 1.5-0.2 0.5-2.4 2.8-4.7 3.7-1.4 3.1-2 3.5-0.1 1.5-0.9 2.1-3.4 0.4-1.3 0.7-3.5-0.4-5.2 4.2-13.7 2.5-4.6 3.9-5.6 1.2-6-0.6-6.9 1.3-5.7-1.7-12.9 0.2-4 1.8-2.4 4.3-2.2 0.4-2.2-1-3-5-4.2-1.4-3.9-4.2-1.4-5.1 2.4-6.6 2.3-4.1 1.4-1.4 4.7-2.8 4-7 3.7-1 1.7-3.7 6.4-2.2 13.8-3.9 3.5-3 13.2-1.4 9-3.9 2.1 0.6 11-1.8 6.3-0.5 4.2 0.7 1.7 2.4 2 1.6 6.5 2.6 2 2 1.3 4.9 1.3 1.9 0.7-0.8 0.8-0.7 0.4-0.7z"/>
+              </g>
+
+              <!-- 17개 시도 이름 라벨 칩 (터치하기 쉬운 큰 뱃지) 그룹 -->
+              <g id="labels-layer">
+                <!-- 서울 (KR11) -->
+                <g class="region-badge-group" data-id="KR11" transform="translate(397, 233)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">서울</text>
+                </g>
+                <!-- 인천 (KR28) -->
+                <g class="region-badge-group" data-id="KR28" transform="translate(345, 247)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">인천</text>
+                </g>
+                <!-- 경기 (KR41) -->
+                <g class="region-badge-group" data-id="KR41" transform="translate(460, 260)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">경기</text>
+                </g>
+                <!-- 강원 (KR42) -->
+                <g class="region-badge-group" data-id="KR42" transform="translate(566, 195)">
+                  <rect class="badge-bg" x="-28" y="-14" width="56" height="28"/>
+                  <text class="badge-text" y="1">강원</text>
+                </g>
+                <!-- 충북 (KR43) -->
+                <g class="region-badge-group" data-id="KR43" transform="translate(485, 362)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">충북</text>
+                </g>
+                <!-- 충남 (KR44) -->
+                <g class="region-badge-group" data-id="KR44" transform="translate(370, 395)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">충남</text>
+                </g>
+                <!-- 세종 (KR50) -->
+                <g class="region-badge-group" data-id="KR50" transform="translate(416, 385)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">세종</text>
+                </g>
+                <!-- 대전 (KR30) -->
+                <g class="region-badge-group" data-id="KR30" transform="translate(450, 435)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">대전</text>
+                </g>
+                <!-- 경북 (KR47) -->
+                <g class="region-badge-group" data-id="KR47" transform="translate(638, 410)">
+                  <rect class="badge-bg" x="-28" y="-14" width="56" height="28"/>
+                  <text class="badge-text" y="1">경북</text>
+                </g>
+                <!-- 전북 (KR45) -->
+                <g class="region-badge-group" data-id="KR45" transform="translate(418, 530)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">전북</text>
+                </g>
+                <!-- 대구 (KR27) -->
+                <g class="region-badge-group" data-id="KR27" transform="translate(617, 510)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">대구</text>
+                </g>
+                <!-- 울산 (KR31) -->
+                <g class="region-badge-group" data-id="KR31" transform="translate(695, 575)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">울산</text>
+                </g>
+                <!-- 광주 (KR29) -->
+                <g class="region-badge-group" data-id="KR29" transform="translate(385, 625)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">광주</text>
+                </g>
+                <!-- 경남 (KR48) -->
+                <g class="region-badge-group" data-id="KR48" transform="translate(565, 604)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">경남</text>
+                </g>
+                <!-- 부산 (KR26) -->
+                <g class="region-badge-group" data-id="KR26" transform="translate(676, 628)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">부산</text>
+                </g>
+                <!-- 전남 (KR46) -->
+                <g class="region-badge-group" data-id="KR46" transform="translate(385, 680)">
+                  <rect class="badge-bg" x="-26" y="-14" width="52" height="28"/>
+                  <text class="badge-text" y="1">전남</text>
+                </g>
+                <!-- 제주 (KR49) -->
+                <g class="region-badge-group" data-id="KR49" transform="translate(335, 920)">
+                  <rect class="badge-bg" x="-28" y="-14" width="56" height="28"/>
+                  <text class="badge-text" y="1">제주</text>
+                </g>
+              </g>
+
+              <!-- 퀴즈 동서남북 힌트 화살표 오버레이 레이어 -->
+              <g id="hint-arrow-layer" pointer-events="none"></g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 우측: 모드별 패널 컨테이너 -->
+        <div class="side-panel-column">
+          
+          <!-- [모드 1 패널] 자유 탐색 정보 카드 -->
+          <div id="panel-explore" class="info-card-panel">
+            <div class="explore-tracker">
+              <div class="tracker-label">
+                <span>🎒</span> <span>나의 탐험 기록</span>
+              </div>
+              <div class="tracker-count" id="explore-stamp-count">
+                0 / 17 지역 발견!
+              </div>
+            </div>
+
+            <!-- 미선택 시 기본 안내 -->
+            <div id="profile-empty" class="region-profile-empty">
+              <div class="profile-empty-icon">🗺️</div>
+              <h3 style="font-family: var(--font-display); font-size: 1.4rem; color: #2D3748; margin-bottom: 8px;">궁금한 지역을 콕 눌러보세요!</h3>
+              <p>왼쪽 지도에서 알고 싶은 지역이나<br>이름 뱃지를 클릭하면 재미있는 이야기와<br>특징을 볼 수 있어요.</p>
+            </div>
+
+            <!-- 지역 선택 시 상세 프로필 카드 -->
+            <div id="profile-detail" class="region-profile-active">
+              <div class="profile-header">
+                <div class="profile-icon-wrap" id="prof-icon">🏙️</div>
+                <div class="profile-name-wrap">
+                  <span class="profile-type-badge" id="prof-type">특별시</span>
+                  <h3 class="profile-name" id="prof-name">서울특별시</h3>
+                </div>
+              </div>
+
+              <button class="btn-tts" id="btn-speak-region">
+                <span>🔊</span> <span>소리로 듣기</span>
+              </button>
+
+              <div class="profile-tagline" id="prof-tagline">
+                대한민국의 심장, 아름다운 수도
+              </div>
+
+              <p class="profile-desc" id="prof-desc">
+                우리나라의 정치, 경제, 문화의 중심지이자 수도예요! 한강이 도시 한가운데를 흐르고 있고, 경복궁과 높은 남산서울타워가 유명해요.
+              </p>
+
+              <div class="profile-facts-card">
+                <div class="facts-title">
+                  <span>✨</span> <span>초등 3~4학년 핵심 쏙쏙!</span>
+                </div>
+                <ul class="facts-list" id="prof-facts-list">
+                  <li>우리나라 인구의 약 5분의 1이 모여 사는 대도시예요.</li>
+                </ul>
+              </div>
+
+              <div class="profile-tags-group" id="prof-tags">
+                <span class="tag-chip">#수도</span>
+                <span class="tag-chip">#한강</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- [모드 2 패널] 위치 맞추기 퀴즈 컨트롤 카드 -->
+          <div id="panel-quiz" class="quiz-control-panel" style="display: none;">
+            <div class="quiz-status-row">
+              <div class="quiz-step-badge" id="quiz-question-counter">
+                문제 1 / 10
+              </div>
+              <div class="quiz-hearts-box" id="quiz-hearts-container" title="남은 기회">
+                <span>❤️</span><span>❤️</span>
+              </div>
+              <div class="quiz-stars-counter" id="quiz-stars-counter" title="모은 별">
+                <span>⭐</span> <span id="quiz-star-count">0</span>
+              </div>
+            </div>
+
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="quiz-progress-bar"></div>
+            </div>
+
+            <!-- 문제 제시 카드 -->
+            <div class="quiz-question-card">
+              <div class="question-prompt">지도에서 이 지역을 찾아 콕 눌러보세요!</div>
+              <div class="question-target-name" id="quiz-target-name">강원특별자치도</div>
+              <div class="question-clue" id="quiz-target-clue">⛷️ 태백산맥과 동해바다가 있는 곳!</div>
+            </div>
+
+            <!-- 실시간 피드백 및 동서남북 힌트 박스 -->
+            <div class="quiz-feedback-box" id="quiz-feedback-box">
+              <div class="feedback-text" id="quiz-feedback-msg">
+                정답이라고 생각되는 지역을 지도에서 클릭해보세요! 🤔
+              </div>
+            </div>
+
+            <div class="compass-hint-widget">
+              <span class="compass-rose">🧭</span>
+              <span class="compass-text" id="quiz-sub-hint-text">
+                지도를 보며 북쪽(위), 남쪽(아래), 서쪽(왼쪽), 동쪽(오른쪽) 위치를 생각해봐요!
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- [화면 3] 퀴즈 최종 결과 화면 (Result) -->
+    <section id="screen-result" class="screen">
+      <div class="result-container">
+        <div class="result-ribbon"></div>
+        <div class="result-trophy-icon" id="result-trophy">🏆</div>
+        <h2 class="result-title">탐험 퀴즈 완료!</h2>
+        
+        <div class="result-score-banner">
+          <span>모은 별:</span>
+          <span id="result-score-text">10 / 10 ⭐</span>
+        </div>
+
+        <div class="result-title-card">
+          <div class="badge-rank-title" id="result-rank-title">🏆 지도 지능 왕!</div>
+          <p class="badge-rank-desc" id="result-rank-desc">
+            지리를 정말 잘 아는군요! 17개 시·도의 위치를 완벽하게 꿰뚫고 있어요!
+          </p>
+        </div>
+
+        <div class="result-actions-row">
+          <button class="btn-result retry" onclick="startQuizMode()">
+            🔄 다시 도전하기
+          </button>
+          <button class="btn-result explore-btn" onclick="startExploreMode()">
+            🔍 자유 탐색하러 가기
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 도움말 팝업 모달 -->
+  <div class="modal-overlay" id="help-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">🧭 지도 탐험대 이용 안내</h3>
+        <button class="btn-close-modal" onclick="closeHelpModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>반가워요! '쏙쏙 대한민국! 지도 탐험대'에 온 것을 환영해요.</strong></p>
+        <ul>
+          <li><strong>🔍 자유 탐색 모드</strong>: 지도의 지역을 자유롭게 클릭하며 위치와 재미있는 특징(특산물, 명소)을 배워요.</li>
+          <li><strong>🎯 위치 맞추기 퀴즈 모드</strong>: 10문제의 지역 위치를 맞혀보세요. 한 문제당 2번의 기회가 주어지며, 틀리면 동서남북 힌트가 나와요!</li>
+          <li><strong>작은 광역시 클릭 팁</strong>: 서울, 인천, 대전, 대구, 광주, 울산, 부산, 세종은 지도 위의 <strong>이름 뱃지</strong>를 콕 눌러도 정답으로 인식돼요.</li>
+        </ul>
+      </div>
+      <button class="btn-modal-ok" onclick="closeHelpModal()">신나게 탐험 시작하기!</button>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       자바스크립트 로직 (외부 라이브러리 없는 순수 Vanilla JS)
+       ========================================================================== -->
+  <script>
+    /* ==========================================================================
+       1. 17개 행정구역 데이터베이스 (초등 3~4학년 사회과 맞춤)
+       ========================================================================== */
+    const REGIONS = {
+      'KR11': {
+        id: 'KR11',
+        name: '서울특별시',
+        badge: '서울',
+        type: '특별시',
+        icon: '🏙️',
+        cx: 397.4, cy: 233.0,
+        tagline: '대한민국의 심장, 아름다운 수도',
+        desc: '우리나라의 정치, 경제, 문화의 중심지이자 수도예요! 한강이 도시 한가운데를 흐르고 있고, 조선 왕조의 경복궁과 높은 남산서울타워가 유명해요.',
+        facts: [
+          '우리나라 인구의 약 5분의 1이 모여 사는 가장 큰 대도시예요.',
+          '조선 시대부터 지금까지 600년 넘게 수도 역할을 해왔어요.',
+          '지하철과 버스 등 대중교통이 세계 최고 수준으로 발달해 있어요.'
+        ],
+        tags: ['수도', '한강', '경복궁', '남산서울타워'],
+        clue: '우리나라의 수도이자 한강이 흐르는 곳!'
+      },
+      'KR28': {
+        id: 'KR28',
+        name: '인천광역시',
+        badge: '인천',
+        type: '광역시',
+        icon: '✈️',
+        cx: 345.0, cy: 246.7,
+        tagline: '세계로 뻗어가는 하늘길과 바닷길의 관문',
+        desc: '세계 최고 수준의 인천국제공항과 큰 항구가 있어 우리나라와 세계를 잇는 관문 도시예요! 서해안의 아름다운 섬들과 차이나타운, 송도 국제도시가 유명해요.',
+        facts: [
+          '인천국제공항은 전 세계인이 찾는 가장 편리한 공항 중 하나예요.',
+          '개항기 역사를 간직한 개항장 거리와 맛있는 차이나타운이 있어요.',
+          '강화도와 백령도 등 역사 깊고 아름다운 서해 섬들이 속해 있어요.'
+        ],
+        tags: ['인천국제공항', '차이나타운', '송도', '서해안'],
+        clue: '세계로 떠나는 거대한 국제공항과 항구가 있는 곳!'
+      },
+      'KR41': {
+        id: 'KR41',
+        name: '경기도',
+        badge: '경기',
+        type: '도',
+        icon: '🏰',
+        cx: 460.0, cy: 260.0,
+        tagline: '서울을 둘러싼 첨단 산업과 역사의 중심',
+        desc: '서울과 인천을 포근하게 감싸고 있는 지역이에요. 우리나라 17개 시·도 중 인구가 가장 많고, 세계문화유산인 수원 화성과 첨단 반도체 공장들이 가득해요!',
+        facts: [
+          '전국 17개 시·도 중 인구가 가장 많은(약 1,360만 명) 활기찬 도예요.',
+          '정조 대왕의 효심과 과학적 축성 기술이 담긴 수원 화성이 있어요.',
+          '에버랜드, 한국민속촌 등 즐거운 관광 명소가 많아요.'
+        ],
+        tags: ['수원화성', '한국민속촌', '반도체', '최대인구'],
+        clue: '서울과 인천을 둘러싸고 있으며 인구가 가장 많은 도!'
+      },
+      'KR42': {
+        id: 'KR42',
+        name: '강원특별자치도',
+        badge: '강원',
+        type: '특별자치도',
+        icon: '🏔️',
+        cx: 566.6, cy: 195.3,
+        tagline: '푸른 동해바다와 웅장한 태백산맥',
+        desc: '높고 웅장한 태백산맥과 시원한 동해바다가 펼쳐진 청정 자연의 고장이에요! 설악산의 단풍, 경포대의 바다, 2018 평창 동계올림픽이 열렸던 곳이랍니다.',
+        facts: [
+          '산이 많아 겨울에 눈이 많이 오고, 여름에는 시원한 동해 피서지로 유명해요.',
+          '고원 지대에서 맛있는 감자, 옥수수, 메밀 등이 쑥쑥 자라요.',
+          '설악산, 오대산 등 국립공원이 많아 맑고 깨끗한 자연을 자랑해요.'
+        ],
+        tags: ['설악산', '동해바다', '평창올림픽', '감자'],
+        clue: '우리나라 동북쪽에 위치하며 높은 산과 푸른 바다가 펼쳐진 곳!'
+      },
+      'KR43': {
+        id: 'KR43',
+        name: '충청북도',
+        badge: '충북',
+        type: '도',
+        icon: '📜',
+        cx: 485.0, cy: 362.4,
+        tagline: '바다가 없는 유일한 내륙, 맑은 호수와 직지의 고향',
+        desc: '우리나라 17개 시·도 중 유일하게 바다와 닿아 있지 않은 내륙 지방이에요! 바다 대신 거대한 충주호와 대청호가 있고, 세계 최초의 금속활자본 직지가 태어난 곳이에요.',
+        facts: [
+          '17개 시·도 중 유일하게 바다와 닿아 있지 않은 내륙 도예요.',
+          '청주 흥덕사에서 세계에서 가장 오래된 금속활자본 ‘직지’를 인쇄했어요.',
+          '단양 팔경(도담삼봉)과 속리산 국립공원의 경치가 정말 빼어나요.'
+        ],
+        tags: ['내륙지방', '직지심체요절', '충주호', '속리산'],
+        clue: '우리나라에서 유일하게 바다와 접하지 않은 내륙 지역!'
+      },
+      'KR44': {
+        id: 'KR44',
+        name: '충청남도',
+        badge: '충남',
+        type: '도',
+        icon: '👑',
+        cx: 370.0, cy: 395.0,
+        tagline: '찬란한 백제 문화와 풍요로운 서해안',
+        desc: '백제의 찬란한 문화를 꽃피웠던 공주와 부여가 있는 역사의 고장이에요. 넓은 평야에서 쌀이 풍성하게 나고, 여름이면 보령 머드 축제와 안면도 해수욕장이 북적여요!',
+        facts: [
+          '공주 공산성과 부여 부소산성 등 백제역사유적지구가 세계유산이에요.',
+          '넓은 평야가 있어 쌀농사가 발달했고 제철·자동차 공업도 활발해요.',
+          '여름에는 전 세계인이 모여드는 보령 머드 축제가 열려요.'
+        ],
+        tags: ['백제문화', '공주부여', '보령머드', '서해안'],
+        clue: '백제의 수도였던 공주와 부여, 보령 머드 축제가 있는 곳!'
+      },
+      'KR50': {
+        id: 'KR50',
+        name: '세종특별자치시',
+        badge: '세종',
+        type: '특별자치시',
+        icon: '🏛️',
+        cx: 416.0, cy: 385.0,
+        tagline: '국가 행정의 중심, 친환경 스마트 미래 도시',
+        desc: '국무총리실과 주요 정부 부처가 모여 있는 국가 행정의 중심 도시예요! 세종대왕의 백성을 사랑하는 정신을 담아 계획된 첨단 친환경 도시랍니다.',
+        facts: [
+          '2012년에 출범한 대한민국에서 가장 젊고 현대적인 행정도시예요.',
+          '정부세종청사 옥상정원은 세계에서 가장 긴 옥상정원으로 기네스북에 올랐어요.',
+          '아이들이 안전하고 쾌적하게 뛰어놀 수 있는 넓은 호수공원이 있어요.'
+        ],
+        tags: ['행정수도', '정부청사', '세종호수공원', '기획도시'],
+        clue: '정부 청사들이 모여 있는 가장 젊은 특별자치시!'
+      },
+      'KR30': {
+        id: 'KR30',
+        name: '대전광역시',
+        badge: '대전',
+        type: '광역시',
+        icon: '🚀',
+        cx: 450.0, cy: 435.0,
+        tagline: '대한민국 과학기술의 수도이자 교통의 요충지',
+        desc: '카이스트(KAIST)와 대덕연구개발특구가 있어 우리나라 과학 연구의 심장이에요! 경부선과 호남선 철도가 만나는 교통의 중심지이며, 유명한 빵집 성심당이 있어요.',
+        facts: [
+          '수많은 과학자와 연구원이 우주, 로봇, 바이오 등 미래 과학을 연구해요.',
+          '1993년 대전 엑스포를 개최하여 과학의 도시로 우뚝 섰어요.',
+          '전국 어디로든 편리하게 오갈 수 있는 사통팔달 교통의 중심지예요.'
+        ],
+        tags: ['과학수도', '대덕연구단지', '성심당', '교통요충지'],
+        clue: '카이스트와 대덕연구단지가 있는 대한민국 과학의 도시!'
+      },
+      'KR45': {
+        id: 'KR45',
+        name: '전북특별자치도',
+        badge: '전북',
+        type: '특별자치도',
+        icon: '🍚',
+        cx: 418.0, cy: 530.0,
+        tagline: '맛과 멋의 고향, 호남평야와 한옥마을',
+        desc: '우리나라 최대 곡창지대 중 하나인 호남평야가 펼쳐진 맛과 멋의 고장이에요! 전통 한옥이 모여 있는 전주한옥마을과 맛있는 전주비빔밥, 세계적인 새만금 간척지가 있어요.',
+        facts: [
+          '전통 소리(판소리)와 한지, 한옥 등 우리 고유의 멋이 살아 숨 쉬어요.',
+          '음식 솜씨가 뛰어나 전주비빔밥, 콩나물국밥 등 맛있는 먹거리가 넘쳐나요.',
+          '바다를 메워 만든 새만금 방조제는 세계에서 가장 긴 방조제예요.'
+        ],
+        tags: ['전주비빔밥', '한옥마을', '호남평야', '새만금'],
+        clue: '전주 한옥마을과 맛있는 비빔밥, 드넓은 호남평야가 있는 곳!'
+      },
+      'KR46': {
+        id: 'KR46',
+        name: '전라남도',
+        badge: '전남',
+        type: '도',
+        icon: '🌊',
+        cx: 385.0, cy: 680.0,
+        tagline: '햇살 가득한 다도해와 풍요로운 남도 문화',
+        desc: '수많은 섬과 긴 해안선이 어우러진 다도해해상국립공원이 있는 아름다운 해양 지역이에요! 보성의 초록 녹차밭, 순천만의 갈대밭, 그리고 우리나라 우주 발사체가 날아오른 나로우주센터가 있어요.',
+        facts: [
+          '섬이 약 2,000개나 있어 전국에서 섬이 가장 많은 도예요.',
+          '고흥 나로우주센터에서 누리호 등 우주 로켓을 우주로 쏘아 올렸어요.',
+          '순천만 습지는 세계적으로 유명한 흑두루미와 철새들의 보금자리예요.'
+        ],
+        tags: ['다도해', '나로우주센터', '순천만', '보성녹차'],
+        clue: '아름다운 섬들이 가득한 다도해와 나로우주센터가 있는 곳!'
+      },
+      'KR29': {
+        id: 'KR29',
+        name: '광주광역시',
+        badge: '광주',
+        type: '광역시',
+        icon: '🎨',
+        cx: 385.0, cy: 625.0,
+        tagline: '빛고을이자 문화와 예술, 민주주의의 요람',
+        desc: '‘빛고을’이라는 따뜻한 이름을 가진 호남 지방의 최대 도시예요! 세계적인 광주비엔날레가 열리는 예술의 도시이자, 우리나라 민주주의를 지켜낸 5·18 민주화운동의 역사 도시예요.',
+        facts: [
+          '국립아시아문화전당이 있어 세계 문화 예술 교류가 활발해요.',
+          '무등산 국립공원에는 돌기둥이 병풍처럼 늘어선 주상절리가 장관이에요.',
+          '우리나라 민주주의의 소중함을 배울 수 있는 민주화운동 기념지가 있어요.'
+        ],
+        tags: ['빛고을', '문화예술', '무등산', '민주주의'],
+        clue: '‘빛고을’이라 불리며 무등산과 문화예술이 꽃피는 도시!'
+      },
+      'KR47': {
+        id: 'KR47',
+        name: '경상북도',
+        badge: '경북',
+        type: '도',
+        icon: '🏯',
+        cx: 638.0, cy: 410.0,
+        tagline: '천년 신라의 숨결과 동쪽 끝 우리 땅 독도',
+        desc: '우리나라 17개 시·도 중 면적이 가장 넓은 곳이에요! 신라의 천년 수도였던 경주(불국사, 석굴암), 선비 정신이 깃든 안동 하회마을, 그리고 우리나라 동쪽 끝 울릉도와 독도가 있어요.',
+        facts: [
+          '불국사, 석굴암, 첨성대 등 값진 유네스코 세계유산이 가득해요.',
+          '안동 하회마을에서는 옛 선비들의 생활 모습과 하회탈춤을 볼 수 있어요.',
+          '동해의 아름다운 섬 울릉도와 우리 땅 독도를 품고 있는 자랑스러운 고장이에요.'
+        ],
+        tags: ['경주불국사', '독도울릉도', '안동하회마을', '최대면적'],
+        clue: '면적이 가장 넓고 신라의 수도 경주와 독도를 품은 곳!'
+      },
+      'KR27': {
+        id: 'KR27',
+        name: '대구광역시',
+        badge: '대구',
+        type: '광역시',
+        icon: '☀️',
+        cx: 617.0, cy: 510.0,
+        tagline: '분지 속의 활기찬 섬유·패션 중심지',
+        desc: '주변이 높은 산으로 둘러싸인 분지 지형이라 여름에 따뜻하고 활기찬 도시예요! 옛날부터 섬유와 패션 산업이 발전했고, 근대 문화 골목과 조선 3대 시장인 서문시장이 유명해요.',
+        facts: [
+          '사방이 산으로 둘러싸인 대표적인 분지 지형이에요.',
+          '한국전쟁 당시 다치지 않아 근대 골목길 역사가 잘 보존되어 있어요.',
+          '영남 지방 상업의 중심지로 300년 전통의 서문시장과 약령시가 있어요.'
+        ],
+        tags: ['분지지형', '섬유패션', '서문시장', '근대골목'],
+        clue: '사방이 산으로 둘러싸인 분지 지형이자 영남의 대도시!'
+      },
+      'KR31': {
+        id: 'KR31',
+        name: '울산광역시',
+        badge: '울산',
+        type: '광역시',
+        icon: '🚢',
+        cx: 695.0, cy: 575.0,
+        tagline: '대한민국 산업을 이끄는 첨단 공업과 생태 도시',
+        desc: '자동차, 거대한 배(조선), 석유화학 등 우리나라 경제를 이끄는 대표 산업수도예요! 기적처럼 깨끗해진 태화강 십리대숲과 선사시대 고래 사냥 그림이 새겨진 반구대 암각화가 있어요.',
+        facts: [
+          '세계 최대 규모의 자동차 공장과 큰 배를 만드는 조선소가 있어요.',
+          '선사시대 사람들이 고래 잡는 모습을 바위에 새긴 국보 반구대 암각화가 있어요.',
+          '태화강 국가정원은 생태계가 살아나 백로와 떼까마귀가 찾아오는 명소예요.'
+        ],
+        tags: ['산업수도', '자동차조선', '태화강십리대숲', '반구대암각화'],
+        clue: '자동차와 거대한 배를 만드는 대한민국 최고의 산업 도시!'
+      },
+      'KR26': {
+        id: 'KR26',
+        name: '부산광역시',
+        badge: '부산',
+        type: '광역시',
+        icon: '🏖️',
+        cx: 676.0, cy: 628.0,
+        tagline: '대한민국 제1의 해양도시이자 활기찬 국제항',
+        desc: '우리나라에서 두 번째로 큰 도시이자 세계적인 컨테이너 항만 도시예요! 시원한 해운대·광안리 해수욕장, 싱싱한 자갈치시장, 아시아 최대 영화제(BIFF)가 열려요.',
+        facts: [
+          '우리나라로 들어오고 나가는 수출입 화물의 대부분을 처리하는 바다 관문이에요.',
+          '매년 가을 아시아를 대표하는 부산국제영화제가 열려 영화의 도시로 불려요.',
+          '광안대교의 멋진 야경과 자갈치시장의 활기찬 분위기가 일품이에요.'
+        ],
+        tags: ['제2의도시', '해운대', '국제항구', '자갈치시장'],
+        clue: '우리나라에서 두 번째로 큰 도시이자 해운대와 국제항구가 있는 곳!'
+      },
+      'KR48': {
+        id: 'KR48',
+        name: '경상남도',
+        badge: '경남',
+        type: '도',
+        icon: '🐢',
+        cx: 565.0, cy: 604.0,
+        tagline: '이순신 장군의 한려수도와 항공·기계 산업의 중심',
+        desc: '이순신 장군이 나라를 구한 한산대첩의 바다 한려해상국립공원이 있는 곳이에요! 팔만대장경을 모신 해인사와 우주항공청이 들어선 대한민국 항공우주 산업의 핵심 기지예요.',
+        facts: [
+          '통영, 거제, 남해 등 보석처럼 아름다운 남해안 바다 절경을 자랑해요.',
+          '합천 해인사 장경판전에는 유네스코 기록유산 팔만대장경판이 보관되어 있어요.',
+          '사천과 창원을 중심으로 비행기와 기계를 만드는 첨단 공업이 발달했어요.'
+        ],
+        tags: ['한려수도', '이순신장군', '팔만대장경', '항공우주'],
+        clue: '이순신 장군의 한산대첩 바다와 팔만대장경이 있는 곳!'
+      },
+      'KR49': {
+        id: 'KR49',
+        name: '제주특별자치도',
+        badge: '제주',
+        type: '특별자치도',
+        icon: '🍊',
+        cx: 335.0, cy: 920.0,
+        tagline: '유네스코 3관왕! 화산이 빚은 아름다운 평화의 섬',
+        desc: '화산 폭발로 만들어진 우리나라에서 가장 큰 섬이에요! 대한민국에서 가장 높은 한라산(1,950m), 신비한 성산일출봉, 만장굴 등 세계자연유산으로 지정된 보물섬이랍니다.',
+        facts: [
+          '세계자연유산, 생물권보전지역, 세계지질공원 등 유네스코 3관왕에 올랐어요.',
+          '돌, 바람, 여자가 많다고 하여 ‘삼다도’라고도 불려요.',
+          '달콤한 감귤과 한라봉, 구멍 뚫린 현무암 돌하르방이 반겨줘요.'
+        ],
+        tags: ['세계자연유산', '한라산', '감귤', '성산일출봉'],
+        clue: '우리나라 남쪽 바다에 있는 가장 큰 화산섬이자 한라산이 있는 곳!'
+      }
+    };
+
+    /* ==========================================================================
+       2. Web Audio API 사운드 신시사이저 (외부 오디오 파일 없이 100% 무결점 동작)
+       ========================================================================== */
+    class SoundManager {
+      constructor() {
+        this.ctx = null;
+        this.isMuted = false;
+      }
+
+      initContext() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.ctx = new AudioContextClass();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      toggleMute() {
+        this.isMuted = !this.isMuted;
+        return this.isMuted;
+      }
+
+      // 클릭 팝 소리
+      playPop() {
+        if (this.isMuted) return;
+        this.initContext();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(450, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      }
+
+      // 정답음 (경쾌한 도-미-솔-도 아르페지오)
+      playCorrect() {
+        if (this.isMuted) return;
+        this.initContext();
+        if (!this.ctx) return;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const now = this.ctx.currentTime + (idx * 0.09);
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.28, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.22);
+        });
+      }
+
+      // 오답음 (부드러운 미-도 하강음)
+      playWrong() {
+        if (this.isMuted) return;
+        this.initContext();
+        if (!this.ctx) return;
+        const notes = [329.63, 261.63]; // E4, C4
+        notes.forEach((freq, idx) => {
+          const now = this.ctx.currentTime + (idx * 0.15);
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        });
+      }
+
+      // 힌트 알림음 (띠링~)
+      playHint() {
+        if (this.isMuted) return;
+        this.initContext();
+        if (!this.ctx) return;
+        const notes = [659.25, 880.00]; // E5, A5
+        notes.forEach((freq, idx) => {
+          const now = this.ctx.currentTime + (idx * 0.08);
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        });
+      }
+
+      // 승리 팡파르 멜로디
+      playFanfare() {
+        if (this.isMuted) return;
+        this.initContext();
+        if (!this.ctx) return;
+        const melody = [
+          { f: 523.25, d: 0.12 }, // 도
+          { f: 523.25, d: 0.12 }, // 도
+          { f: 523.25, d: 0.12 }, // 도
+          { f: 659.25, d: 0.30 }, // 미
+          { f: 783.99, d: 0.20 }, // 솔
+          { f: 1046.50, d: 0.60 } // 도!
+        ];
+        let cur = this.ctx.currentTime;
+        melody.forEach(item => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(item.f, cur);
+          gain.gain.setValueAtTime(0.3, cur);
+          gain.gain.exponentialRampToValueAtTime(0.01, cur + item.d);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(cur);
+          osc.stop(cur + item.d);
+          cur += item.d + 0.05;
+        });
+      }
+    }
+
+    const sound = new SoundManager();
+
+    /* ==========================================================================
+       3. 캔버스 컨페티(꽃가루/별가루) 파티클 시스템
+       ========================================================================== */
+    class ConfettiEffect {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.animId = null;
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+      }
+
+      resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
+
+      fire(count = 70) {
+        const colors = ['#FF4757', '#2ED573', '#1E90FF', '#FFA502', '#9B59B6', '#FF6B81', '#2BCBBA'];
+        for (let i = 0; i < count; i++) {
+          this.particles.push({
+            x: this.canvas.width / 2 + (Math.random() * 200 - 100),
+            y: this.canvas.height / 3,
+            vx: (Math.random() - 0.5) * 12,
+            vy: (Math.random() - 0.7) * 14 - 3,
+            size: Math.random() * 8 + 6,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * 360,
+            vRot: (Math.random() - 0.5) * 10,
+            opacity: 1,
+            isStar: Math.random() > 0.5
+          });
+        }
+        if (!this.animId) {
+          this.loop();
+        }
+      }
+
+      loop() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.28; // 중력
+          p.rotation += p.vRot;
+          p.opacity -= 0.009;
+
+          this.ctx.save();
+          this.ctx.translate(p.x, p.y);
+          this.ctx.rotate((p.rotation * Math.PI) / 180);
+          this.ctx.globalAlpha = Math.max(p.opacity, 0);
+          this.ctx.fillStyle = p.color;
+
+          if (p.isStar) {
+            this.drawStar(this.ctx, 0, 0, 4, p.size, p.size / 2);
+          } else {
+            this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
+          }
+          this.ctx.restore();
+
+          if (p.opacity <= 0 || p.y > this.canvas.height + 50) {
+            this.particles.splice(i, 1);
+          }
+        }
+
+        if (this.particles.length > 0) {
+          this.animId = requestAnimationFrame(() => this.loop());
+        } else {
+          this.animId = null;
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+      }
+
+      drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+        let rot = (Math.PI / 2) * 3;
+        let x = cx;
+        let y = cy;
+        let step = Math.PI / spikes;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - outerRadius);
+        for (let i = 0; i < spikes; i++) {
+          x = cx + Math.cos(rot) * outerRadius;
+          y = cy + Math.sin(rot) * outerRadius;
+          ctx.lineTo(x, y);
+          rot += step;
+          x = cx + Math.cos(rot) * innerRadius;
+          y = cy + Math.sin(rot) * innerRadius;
+          ctx.lineTo(x, y);
+          rot += step;
+        }
+        ctx.lineTo(cx, cy - outerRadius);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    const confetti = new ConfettiEffect('confetti-canvas');
+
+    /* ==========================================================================
+       4. 앱 상태 관리 (State)
+       ========================================================================== */
+    const state = {
+      currentScreen: 'screen-lobby',
+      currentMode: null, // 'explore' | 'quiz'
+      
+      // 탐색 모드 상태
+      exploredRegions: new Set(),
+      selectedRegionId: null,
+
+      // 퀴즈 모드 상태
+      quizQuestions: [],
+      currentQuestionIndex: 0,
+      hearts: 2,
+      stars: 0,
+      isAnsweringLocked: false,
+      wrongAttemptsInCurrentQuestion: 0,
+      totalQuestions: 10
+    };
+
+    /* ==========================================================================
+       5. 화면 전환 및 초기화 함수
+       ========================================================================== */
+    function switchScreen(screenId) {
+      sound.playPop();
+      document.querySelectorAll('.screen').forEach(scr => scr.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) {
+        target.classList.add('active');
+        state.currentScreen = screenId;
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // 메인 홈 이동 시 정리
+      if (screenId === 'screen-lobby') {
+        clearHighlights();
+        clearHintArrow();
+      }
+    }
+
+    // 모드 1: 자유 탐색 모드 시작
+    function startExploreMode() {
+      state.currentMode = 'explore';
+      switchScreen('screen-map-view');
+
+      document.getElementById('panel-explore').style.display = 'flex';
+      document.getElementById('panel-quiz').style.display = 'none';
+      document.getElementById('map-mode-indicator').innerHTML = `<span>🔍</span> <span>자유 탐색 모드</span>`;
+
+      clearHighlights();
+      clearHintArrow();
+
+      // 기존 선택된 지역이 있다면 표시, 없으면 안내 상태 유지
+      if (state.selectedRegionId && REGIONS[state.selectedRegionId]) {
+        showRegionProfile(state.selectedRegionId);
+      } else {
+        document.getElementById('profile-empty').style.display = 'block';
+        document.getElementById('profile-detail').style.display = 'none';
+      }
+
+      updateExploreCounter();
+    }
+
+    // 모드 2: 퀴즈 모드 시작
+    function startQuizMode() {
+      state.currentMode = 'quiz';
+      switchScreen('screen-map-view');
+
+      document.getElementById('panel-explore').style.display = 'none';
+      document.getElementById('panel-quiz').style.display = 'flex';
+      document.getElementById('map-mode-indicator').innerHTML = `<span>🎯</span> <span>위치 맞추기 퀴즈</span>`;
+
+      // 10문제 무작위 추출 및 초기화
+      const regionKeys = Object.keys(REGIONS);
+      const shuffled = [...regionKeys].sort(() => Math.random() - 0.5);
+      state.quizQuestions = shuffled.slice(0, state.totalQuestions);
+      state.currentQuestionIndex = 0;
+      state.stars = 0;
+      state.isAnsweringLocked = false;
+
+      clearHighlights();
+      clearHintArrow();
+      loadCurrentQuestion();
+    }
+
+    /* ==========================================================================
+       6. 자유 탐색 모드 로직
+       ========================================================================== */
+    function handleExploreClick(regionId) {
+      const region = REGIONS[regionId];
+      if (!region) return;
+
+      sound.playPop();
+      state.selectedRegionId = regionId;
+      state.exploredRegions.add(regionId);
+
+      clearHighlights();
+      const pathEl = document.getElementById(regionId);
+      if (pathEl) {
+        pathEl.classList.add('selected');
+      }
+
+      showRegionProfile(regionId);
+      updateExploreCounter();
+    }
+
+    function showRegionProfile(regionId) {
+      const region = REGIONS[regionId];
+      if (!region) return;
+
+      document.getElementById('profile-empty').style.display = 'none';
+      const detailEl = document.getElementById('profile-detail');
+      detailEl.style.display = 'flex';
+
+      document.getElementById('prof-icon').textContent = region.icon;
+      document.getElementById('prof-type').textContent = region.type;
+      document.getElementById('prof-name').textContent = region.name;
+      document.getElementById('prof-tagline').textContent = region.tagline;
+      document.getElementById('prof-desc').textContent = region.desc;
+
+      const factsList = document.getElementById('prof-facts-list');
+      factsList.innerHTML = '';
+      region.facts.forEach(fact => {
+        const li = document.createElement('li');
+        li.textContent = fact;
+        factsList.appendChild(li);
+      });
+
+      const tagsWrap = document.getElementById('prof-tags');
+      tagsWrap.innerHTML = '';
+      region.tags.forEach(tag => {
+        const span = document.createElement('span');
+        span.className = 'tag-chip';
+        span.textContent = `#${tag}`;
+        tagsWrap.appendChild(span);
+      });
+
+      // TTS 버튼 이벤트 바인딩
+      const btnSpeak = document.getElementById('btn-speak-region');
+      btnSpeak.onclick = () => speakRegion(region);
+    }
+
+    function updateExploreCounter() {
+      const total = Object.keys(REGIONS).length;
+      const count = state.exploredRegions.size;
+      const counterEl = document.getElementById('explore-stamp-count');
+      counterEl.textContent = `${count} / ${total} 지역 발견! 🌟`;
+
+      if (count === total && state.currentMode === 'explore') {
+        confetti.fire(80);
+      }
+    }
+
+    // TTS 음성 안내
+    function speakRegion(region) {
+      if (!('speechSynthesis' in window)) {
+        alert('이 브라우저는 음성 안내(TTS) 기능을 지원하지 않습니다.');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const text = `${region.name}! ${region.tagline}. ${region.desc}`;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'ko-KR';
+      utter.rate = 0.95;
+      utter.pitch = 1.05;
+      window.speechSynthesis.speak(utter);
+    }
+
+    /* ==========================================================================
+       7. 퀴즈 모드 로직 & 방위 힌트 시스템
+       ========================================================================== */
+    function loadCurrentQuestion() {
+      state.isAnsweringLocked = false;
+      state.wrongAttemptsInCurrentQuestion = 0;
+      state.hearts = 2;
+
+      clearHighlights();
+      clearHintArrow();
+
+      const qIndex = state.currentQuestionIndex;
+      const total = state.totalQuestions;
+      const targetId = state.quizQuestions[qIndex];
+      const target = REGIONS[targetId];
+
+      // UI 업데이트
+      document.getElementById('quiz-question-counter').textContent = `문제 ${qIndex + 1} / ${total}`;
+      document.getElementById('quiz-star-count').textContent = state.stars;
+      renderHearts(state.hearts);
+
+      const progressPct = ((qIndex) / total) * 100;
+      document.getElementById('quiz-progress-bar').style.width = `${progressPct}%`;
+
+      document.getElementById('quiz-target-name').textContent = target.name;
+      document.getElementById('quiz-target-clue').textContent = target.clue;
+
+      const feedbackBox = document.getElementById('quiz-feedback-box');
+      feedbackBox.className = 'quiz-feedback-box';
+      document.getElementById('quiz-feedback-msg').textContent = '정답이라고 생각되는 지역을 지도에서 클릭해보세요! 🤔';
+      document.getElementById('quiz-sub-hint-text').textContent = '지도를 보며 북쪽(위), 남쪽(아래), 서쪽(왼쪽), 동쪽(오른쪽) 위치를 생각해봐요!';
+    }
+
+    function renderHearts(count) {
+      const container = document.getElementById('quiz-hearts-container');
+      container.innerHTML = '';
+      for (let i = 0; i < 2; i++) {
+        const heart = document.createElement('span');
+        heart.textContent = i < count ? '❤️' : '🤍';
+        container.appendChild(heart);
+      }
+    }
+
+    function handleQuizClick(clickedId) {
+      if (state.isAnsweringLocked) return;
+
+      const currentTargetId = state.quizQuestions[state.currentQuestionIndex];
+      const target = REGIONS[currentTargetId];
+      const clicked = REGIONS[clickedId];
+
+      if (!target || !clicked) return;
+
+      if (clickedId === currentTargetId) {
+        // [정답인 경우]
+        handleQuizCorrect(target);
+      } else {
+        // [오답인 경우]
+        handleQuizWrong(clicked, target);
+      }
+    }
+
+    function handleQuizCorrect(target) {
+      state.isAnsweringLocked = true;
+      sound.playCorrect();
+      confetti.fire(60);
+
+      // 별 획득
+      state.stars++;
+      document.getElementById('quiz-star-count').textContent = state.stars;
+
+      // 지도 구역 강조
+      const pathEl = document.getElementById(target.id);
+      if (pathEl) {
+        pathEl.classList.add('correct-anim');
+      }
+
+      // 피드백 박스
+      const feedbackBox = document.getElementById('quiz-feedback-box');
+      feedbackBox.className = 'quiz-feedback-box correct';
+      document.getElementById('quiz-feedback-msg').innerHTML = `
+        <span>정답이에요! 👏 대단해요!</span><br>
+        <small style="font-size:0.95rem; font-weight:normal;">여기가 바로 [${target.name}]입니다! (+1 ⭐)</small>
+      `;
+
+      clearHintArrow();
+
+      setTimeout(() => {
+        nextQuestion();
+      }, 1600);
+    }
+
+    function handleQuizWrong(clicked, target) {
+      sound.playWrong();
+      state.wrongAttemptsInCurrentQuestion++;
+      state.hearts--;
+      renderHearts(state.hearts);
+
+      // 클릭한 오답 구역 흔들림 애니메이션
+      const clickedPath = document.getElementById(clicked.id);
+      if (clickedPath) {
+        clickedPath.classList.remove('wrong-anim');
+        void clickedPath.offsetWidth; // reflow
+        clickedPath.classList.add('wrong-anim');
+      }
+
+      // 8방위 상대 위치 계산 (초등 사회 핵심 개념)
+      const directionText = calculateDirectionHint(clicked, target);
+      drawHintArrow(clicked, target);
+
+      const feedbackBox = document.getElementById('quiz-feedback-box');
+      feedbackBox.className = 'quiz-feedback-box wrong';
+
+      if (state.hearts > 0) {
+        // 1번째 오답: 힌트 제공 및 재도전 기회
+        document.getElementById('quiz-feedback-msg').innerHTML = `
+          <span>다시 한번 생각해볼까요? 🤔</span>
+          <span class="feedback-hint-direction">방금 클릭한 [${clicked.name}]보다 더 [${directionText}]에 있어요! 🧭</span>
+        `;
+        document.getElementById('quiz-sub-hint-text').textContent = `나침반 힌트: 방금 누른 곳보다 ${directionText} 방향을 찾아보세요!`;
+        sound.playHint();
+      } else {
+        // 2번째 오답 (기회 모두 소진): 정답 위치 알려주고 다음 문제 이동
+        state.isAnsweringLocked = true;
+        document.getElementById('quiz-feedback-msg').innerHTML = `
+          <span>아쉬워요! 정답은 바로 여기예요! 😢</span><br>
+          <small style="font-size:0.95rem; font-weight:normal;">초록색으로 반짝이는 [${target.name}]의 위치를 눈에 익혀둬요!</small>
+        `;
+
+        // 정답 위치 하이라이트
+        const targetPath = document.getElementById(target.id);
+        if (targetPath) {
+          targetPath.classList.add('correct-anim');
+        }
+
+        setTimeout(() => {
+          nextQuestion();
+        }, 2200);
+      }
+    }
+
+    // 8방위 계산 로직 (수학적 각도 기반)
+    function calculateDirectionHint(fromRegion, toRegion) {
+      // SVG 좌표계: x는 오른쪽 증가(동쪽), y는 아래쪽 증가(남쪽)
+      const dx = toRegion.cx - fromRegion.cx;
+      const dy = -(toRegion.cy - fromRegion.cy); // y를 반전시켜 위쪽이 양수(북쪽)가 되도록
+
+      // 각도 (라디안 -> 도, -180 ~ 180)
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+      if (angle >= -22.5 && angle < 22.5) {
+        return '동쪽(오른쪽) 👉';
+      } else if (angle >= 22.5 && angle < 67.5) {
+        return '북동쪽(오른쪽 위) ↗️';
+      } else if (angle >= 67.5 && angle < 112.5) {
+        return '북쪽(위쪽) ⬆️';
+      } else if (angle >= 112.5 && angle < 157.5) {
+        return '북서쪽(왼쪽 위) ↖️';
+      } else if (angle >= 157.5 || angle < -157.5) {
+        return '서쪽(왼쪽) 👈';
+      } else if (angle >= -157.5 && angle < -112.5) {
+        return '남서쪽(왼쪽 아래) ↙️';
+      } else if (angle >= -112.5 && angle < -67.5) {
+        return '남쪽(아래쪽) ⬇️';
+      } else {
+        return '남동쪽(오른쪽 아래) ↘️';
+      }
+    }
+
+    // SVG 상에 오답 위치에서 정답 방향으로의 시각적 화살표 표시
+    function drawHintArrow(from, to) {
+      const container = document.getElementById('hint-arrow-layer');
+      container.innerHTML = '';
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', from.cx);
+      line.setAttribute('y1', from.cy);
+      line.setAttribute('x2', to.cx);
+      line.setAttribute('y2', to.cy);
+      line.setAttribute('stroke', '#EF476F');
+      line.setAttribute('stroke-width', '3.5');
+      line.setAttribute('stroke-dasharray', '6 6');
+      line.setAttribute('opacity', '0.75');
+
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', from.cx);
+      circle.setAttribute('cy', from.cy);
+      circle.setAttribute('r', '7');
+      circle.setAttribute('fill', '#EF476F');
+
+      container.appendChild(line);
+      container.appendChild(circle);
+    }
+
+    function clearHintArrow() {
+      const container = document.getElementById('hint-arrow-layer');
+      if (container) container.innerHTML = '';
+    }
+
+    function clearHighlights() {
+      document.querySelectorAll('.province-path').forEach(p => {
+        p.classList.remove('selected', 'correct-anim', 'wrong-anim');
+      });
+    }
+
+    function nextQuestion() {
+      state.currentQuestionIndex++;
+      if (state.currentQuestionIndex >= state.totalQuestions) {
+        // 모든 퀴즈 완료 -> 결과 화면
+        showQuizResult();
+      } else {
+        loadCurrentQuestion();
+      }
+    }
+
+    /* ==========================================================================
+       8. 퀴즈 결과 화면
+       ========================================================================== */
+    function showQuizResult() {
+      switchScreen('screen-result');
+      sound.playFanfare();
+      confetti.fire(100);
+
+      const score = state.stars;
+      const total = state.totalQuestions;
+      document.getElementById('result-score-text').textContent = `${score} / ${total} ⭐`;
+
+      const titleEl = document.getElementById('result-rank-title');
+      const descEl = document.getElementById('result-rank-desc');
+      const trophyEl = document.getElementById('result-trophy');
+
+      if (score >= 8) {
+        trophyEl.textContent = '🏆';
+        titleEl.textContent = '🏆 지도 지능 왕!';
+        descEl.textContent = '지리를 정말 잘 아는군요! 17개 시·도의 위치를 완벽하게 꿰뚫고 있어요!';
+      } else if (score >= 5) {
+        trophyEl.textContent = '🧭';
+        titleEl.textContent = '🧭 훌륭한 탐험가!';
+        descEl.textContent = '조금만 더 하면 완벽해요! 아주 멋지고 훌륭한 도전이었어요!';
+      } else {
+        trophyEl.textContent = '🌱';
+        titleEl.textContent = '🌱 새싹 탐험가!';
+        descEl.textContent = '자유 탐색 모드로 지도를 조금 더 둘러보고 다시 도전해봐요!';
+      }
+    }
+
+    /* ==========================================================================
+       9. 통합 클릭 및 터치 이벤트 핸들러
+       ========================================================================== */
+    function handleRegionClick(regionId) {
+      if (state.currentMode === 'explore') {
+        handleExploreClick(regionId);
+      } else if (state.currentMode === 'quiz') {
+        handleQuizClick(regionId);
+      }
+    }
+
+    // SVG 이벤트 리스너 등록
+    function initMapEvents() {
+      const tooltip = document.getElementById('map-tooltip');
+      const viewport = document.getElementById('svg-viewport');
+
+      // 1. 도/시 폴리곤 패스 클릭 및 마우스 오버
+      document.querySelectorAll('.province-path').forEach(path => {
+        const id = path.id;
+
+        path.addEventListener('click', (e) => {
+          e.stopPropagation();
+          handleRegionClick(id);
+        });
+
+        path.addEventListener('mouseenter', (e) => {
+          const region = REGIONS[id];
+          if (region) {
+            tooltip.textContent = `${region.icon} ${region.name}`;
+            tooltip.style.display = 'block';
+          }
+        });
+
+        path.addEventListener('mousemove', (e) => {
+          const rect = viewport.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          tooltip.style.left = `${x}px`;
+          tooltip.style.top = `${y}px`;
+        });
+
+        path.addEventListener('mouseleave', () => {
+          tooltip.style.display = 'none';
+        });
+      });
+
+      // 2. 이름 뱃지 클릭 (작은 광역시 터치 친화)
+      document.querySelectorAll('.region-badge-group').forEach(badgeGroup => {
+        const id = badgeGroup.getAttribute('data-id');
+        if (!id) return;
+
+        badgeGroup.addEventListener('click', (e) => {
+          e.stopPropagation();
+          handleRegionClick(id);
+        });
+
+        badgeGroup.addEventListener('mouseenter', (e) => {
+          const region = REGIONS[id];
+          if (region) {
+            tooltip.textContent = `${region.icon} ${region.name}`;
+            tooltip.style.display = 'block';
+          }
+        });
+
+        badgeGroup.addEventListener('mousemove', (e) => {
+          const rect = viewport.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          tooltip.style.left = `${x}px`;
+          tooltip.style.top = `${y}px`;
+        });
+
+        badgeGroup.addEventListener('mouseleave', () => {
+          tooltip.style.display = 'none';
+        });
+      });
+    }
+
+    // 도움말 모달
+    function openHelpModal() {
+      sound.playPop();
+      document.getElementById('help-modal').classList.add('active');
+    }
+
+    function closeHelpModal() {
+      sound.playPop();
+      document.getElementById('help-modal').classList.remove('active');
+    }
+
+    // 단일 파일(index.html) 다운로드 함수
+    function downloadCurrentApp() {
+      sound.playPop();
+      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const downloadUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = 'index.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(downloadUrl);
+    }
+
+    /* ==========================================================================
+       10. 페이지 로드 초기화
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      initMapEvents();
+
+      // 효과음 토글 버튼
+      const soundBtn = document.getElementById('btn-sound-toggle');
+      soundBtn.addEventListener('click', () => {
+        const isMuted = sound.toggleMute();
+        soundBtn.textContent = isMuted ? '🔇' : '🔊';
+        if (!isMuted) sound.playPop();
+      });
+
+      // 도움말 버튼
+      document.getElementById('btn-help').addEventListener('click', openHelpModal);
+
+      // 모달 바깥 클릭 시 닫기
+      document.getElementById('help-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'help-modal') closeHelpModal();
+      });
+
+      // 최초 사용자 터치 시 AudioContext 활성화
+      document.addEventListener('click', () => {
+        sound.initContext();
+      }, { once: true });
+    });
+  </script>
+</body>
+</html>
